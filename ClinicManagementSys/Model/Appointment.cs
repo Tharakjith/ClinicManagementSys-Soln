@@ -13,8 +13,6 @@ public partial class Appointment
 
     public int DoctorId { get; set; }
 
- 
-
     public DateTime AppointmentDate { get; set; }
 
     public int DailyAvailabilityId { get; set; }
@@ -42,5 +40,4 @@ public partial class Appointment
     public virtual ICollection<StartDiagnosy> StartDiagnosies { get; set; } = new List<StartDiagnosy>();
 
     public virtual ICollection<TestPrescription> TestPrescriptions { get; set; } = new List<TestPrescription>();
-
 }
