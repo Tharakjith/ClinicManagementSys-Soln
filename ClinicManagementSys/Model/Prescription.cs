@@ -9,7 +9,7 @@ public partial class Prescription
 
     public int? AppointmentId { get; set; }
 
-    public int? MedicineId { get; set; }
+    public int MedicineId { get; set; }
 
     public string Dosage { get; set; } = null!;
 
