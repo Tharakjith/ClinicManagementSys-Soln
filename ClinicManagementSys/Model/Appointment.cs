@@ -13,9 +13,13 @@ public partial class Appointment
 
     public int DoctorId { get; set; }
 
+    public int AvailabilityId { get; set; }
+
     public DateTime AppointmentDate { get; set; }
 
-    public int DailyAvailabilityId { get; set; }
+    public decimal ConsultationFee { get; set; }
+
+    public decimal RegistrationFee { get; set; }
 
     public int TokenNumber { get; set; }
 
@@ -23,7 +27,9 @@ public partial class Appointment
 
     public virtual AppointmentStatus AppointmentStatus { get; set; } = null!;
 
-    public virtual DailyAvailability DailyAvailability { get; set; } = null!;
+    public virtual Availability Availability { get; set; } = null!;
+
+    public virtual ICollection<DailyAvailability> DailyAvailabilities { get; set; } = new List<DailyAvailability>();
 
     public virtual Doctor Doctor { get; set; } = null!;
 

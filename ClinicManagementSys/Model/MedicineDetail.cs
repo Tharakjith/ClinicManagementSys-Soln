@@ -13,9 +13,9 @@ public partial class MedicineDetail
 
     public DateTime ExpiryDate { get; set; }
 
-    public int MedicineCategoryId { get; set; }
+    public string Category { get; set; } = null!;
 
-    public string Unit { get; set; } = null!;
+    public decimal Cost { get; set; }
 
     public bool IsActive { get; set; }
 

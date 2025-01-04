@@ -1,4 +1,5 @@
 using ClinicManagementSys.Model;
+using ClinicManagementSys.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicManagementSys
@@ -28,12 +29,12 @@ namespace ClinicManagementSys
             //connection string as Middleware
 
             builder.Services.AddDbContext<ClinicManagementSysContext>(
-                options => options.UseSqlServer(builder.Configuration.GetConnectionString("PropelAug2024Connection")));
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("PropelAug24Connection")));
 
             //2- Register Repository and service layer
 
-            //builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-            //builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+            builder.Services.AddScoped<ILabtestListRepository, LabtestListRepository>();
+            builder.Services.AddScoped<IPharmacistRepository,PharmacistRepository>();
 
 
             //Register Swagger
