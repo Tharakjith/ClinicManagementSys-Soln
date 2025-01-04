@@ -133,7 +133,7 @@ namespace ClinicManagementSys.Controllers
 
         #endregion
 
-        #region APPOINTMENT BOOKING
+        #region APPOINTMENT BOOKING Operation
 
         #region 1 -  Get all Appointment from DB 
         [HttpGet("Appointments")]
