@@ -5,7 +5,7 @@ namespace ClinicManagementSys.Model;
 
 public partial class Staff
 {
-    public int StaffId { get; set; }
+    public int? StaffId { get; set; }
 
     public string? StaffName { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Staff
 
     public string? Address { get; set; }
 
-    public string? PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; }
 
     public string? Email { get; set; }
 
