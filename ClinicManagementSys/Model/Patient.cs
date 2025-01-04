@@ -25,7 +25,5 @@ public partial class Patient
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    public virtual ICollection<DailyAvailability> DailyAvailabilities { get; set; } = new List<DailyAvailability>();
-
     public virtual ICollection<MedicineBill> MedicineBills { get; set; } = new List<MedicineBill>();
 }
