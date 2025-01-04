@@ -13,6 +13,8 @@ public partial class Availability
 
     public string? Session { get; set; }
 
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
     public virtual ICollection<DailyAvailability> DailyAvailabilities { get; set; } = new List<DailyAvailability>();
 
     public virtual Doctor? Doctor { get; set; }
