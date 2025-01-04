@@ -7,7 +7,7 @@ public partial class Patient
 {
     public int PatientId { get; set; }
 
-    public string PatientName { get; set; } = null!;
+    public string? PatientName { get; set; } = null!;
 
     public DateTime? Dob { get; set; }
 
@@ -24,8 +24,6 @@ public partial class Patient
     public bool? IsActive { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-
-    public virtual ICollection<DailyAvailability> DailyAvailabilities { get; set; } = new List<DailyAvailability>();
 
     public virtual ICollection<MedicineBill> MedicineBills { get; set; } = new List<MedicineBill>();
 }
