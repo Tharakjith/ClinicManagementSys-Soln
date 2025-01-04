@@ -29,13 +29,12 @@ namespace ClinicManagementSys
             //connection string as Middleware
 
             builder.Services.AddDbContext<ClinicManagementSysContext>(
-                options => options.UseSqlServer(builder.Configuration.GetConnectionString("PropelAug24Connection"))); 
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("PropelAug24Connection")));
 
             //2- Register Repository and service layer
 
-          //  builder.Services.AddScoped<IReceptionistRepository, ReceptionistRepository>();
-
-            //builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+            builder.Services.AddScoped<ILabtestListRepository, LabtestListRepository>();
+            builder.Services.AddScoped<IPharmacistRepository,PharmacistRepository>();
 
 
             //Register Swagger
