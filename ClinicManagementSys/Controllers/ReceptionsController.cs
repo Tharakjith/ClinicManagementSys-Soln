@@ -159,6 +159,7 @@ namespace ClinicManagementSys.Controllers
             }
             return Ok(specializations);
         }
+       
         #endregion
 
         #region 3 -  Get all doctors from DB 
@@ -174,83 +175,30 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
 
-        #region   Insert - Appointment Booking
-        //[HttpPost("Book")]
-        //public async Task<ActionResult<Appointment>> InsertBookAppointment(Appointment appointment)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            var result = await _repository.PostBookAppointment(appointment);
-        //            return Ok(result);
-        //        }
-        //        catch (InvalidOperationException ex)
-        //        {
-        //            return BadRequest(new { success = false, message = ex.Message });
-        //        }
-        //    }
-        //    return BadRequest();
-        //}
-        #endregion
-
         #region 4 - Get doctors by specialization
         [HttpGet("Doctors/{specializationId}")]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId)
-        {
-            var doctors = await _repository.GetDoctorsBySpecialization(specializationId);
-
-            // Check if doctors is null or empty
-            if (doctors == null )
-            {
-                return NotFound("No doctors found for the selected specialization");
-            }
-
-            return Ok(doctors);
-        }
-        #endregion
-
-        #region 5 - Get doctor's daily availability by doctorId and date
-        // GET: api/doctor/availability/{doctorId}/{date}
-        [HttpGet("availability/{doctorId}/{date}")]
-        public async Task<ActionResult<IEnumerable<Availability>>> GetDoctorAvailabilityByDoctorIdAndDate(int doctorId, DateTime date)
+        public async Task<ActionResult<IEnumerable<object>>> GetDoctorsBySpecialization(int specializationId)
         {
             try
             {
-                if (_repository != null)
+                var doctors = await _repository.GetDoctorsBySpecializationWithStaffDetails(specializationId);
+
+                // Check if doctors is null or empty
+                if (doctors == null || !doctors.Any())
                 {
-                    // Step 1: Determine the name of the day for the given date
-                    string dayName = date.DayOfWeek.ToString();
-
-                    // Step 2: Fetch the weekday ID from the weekdays table
-                    var weekday = await _repository.GetWeekdayByName(dayName);
-
-                    if (weekday == null)
-                    {
-                        return NotFound("The weekday for the provided date could not be found.");
-                    }
-
-                    // Step 3: Find the doctor's availability for that weekday
-                    var availability = await _repository.GetAvailabilityByDoctorIdAndWeekday(doctorId, weekday.WeekdaysId); // Ensure this method exists
-
-                    if (availability == null || availability.Any())
-                    {
-                        return NotFound("No availability found for the doctor on the specified date.");
-                    }
-
-                    return Ok(availability);
+                    return NotFound("No doctors found for the selected specialization");
                 }
 
-                return StatusCode(500, "Database context is null.");
+                return Ok(doctors);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
         #endregion
 
-        #region 6 - Get doctor's consultation fee by doctor's id
+        #region 5 - Get doctor's consultation fee by doctor's id
         [HttpGet("doctor/{doctorId}/consultation-fee")]
         public async Task<ActionResult<decimal>> GetConsultationFeeByDoctorId(int doctorId)
         {
@@ -273,32 +221,55 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
 
+        #region 6 - Get doctor availability by doctorId
+        [HttpGet("DoctorAvailability/{doctorId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetDoctorAvailability(int doctorId)
+        {
+            try
+            {
+                var availability = await _repository.GetDoctorAvailability(doctorId);
+
+                if (availability == null || !availability.Any())
+                {
+                    return NotFound("No availability found for the selected doctor.");
+                }
+
+                return Ok(availability);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        #endregion
+
         #region 7 - Generate Token Number for Appointment
-        [HttpGet("generatetoken/{doctorId}/{appointmentDate}")]
-        public async Task<ActionResult<int>> GenerateTokenNumber(int doctorId, DateTime appointmentDate)
+        [HttpGet("generatetoken/{doctorId}/{appointmentDate}/{timeSlotId}")]
+        public async Task<ActionResult<int>> GenerateTokenNumber(int doctorId, DateTime appointmentDate, int timeSlotId)
         {
             try
             {
                 // Call the repository method to generate the token number
-                var tokenNumber = await _repository.GenerateTokenNumber(doctorId, appointmentDate);
+                var tokenNumber = await _repository.GenerateTokenNumber(doctorId, appointmentDate, timeSlotId);
 
                 // Return the generated token number
-                return Ok(tokenNumber);
+                return Ok(new { success = true, tokenNumber });
             }
             catch (InvalidOperationException ex)
             {
-                // Return an error response in case of an exception
+                // Return an error response if the token limit is reached or another validation error occurs
                 return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
+                // Return a generic error response for unexpected exceptions
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
         #endregion
 
         #region 8 - Book an Appointment
-        [HttpPost("book-appointment")]
+        [HttpPost("Bookappointment")]
         public async Task<ActionResult<Appointment>> BookAppointment([FromBody] Appointment appointment)
         {
             if (!ModelState.IsValid)

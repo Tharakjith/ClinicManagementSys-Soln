@@ -48,36 +48,24 @@ namespace ClinicManagementSys.Repository
         public Task<ActionResult<IEnumerable<Doctor>>> GetDoctors();
         #endregion
 
-        #region Insert - Appointment Booking
-        //public Task<ActionResult<Appointment>> PostBookAppointment(Appointment appointment);
-        #endregion
-
         #region  4 - Get all Doctors based on Specialization
-        public Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId);
+        public Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId);
         #endregion
 
-        #region 5 - Get Daily Availability of a Doctor
-        public Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date);
-        #endregion
-
-        #region 6 - Get Doctor's Daily Availability by Doctor ID and Date
-        public Task<Weekday> GetWeekdayByName(string dayName);
-
-        public Task<IEnumerable<Availability>> GetAvailabilityByDoctorIdAndWeekday(int doctorId, int weekdayId);
-
-        public Task<ActionResult<IEnumerable<Availability>>> GetDoctorAvailabilityByDoctorIdAndDate(int doctorId, DateTime date);
-        #endregion
-
-        #region 7 - Get Consultation Fee by Doctor ID
+        #region 5 - Get Consultation Fee by Doctor ID
         public Task<decimal> GetConsultationFeeByDoctorId(int doctorId);
         #endregion
 
-        #region 8 - Auto-generate Token Number for Appointments
-        Task<int> GenerateTokenNumber(int doctorId, DateTime appointmentDate);
+        #region 6 - Get Daily Availability of a Doctor by DoctorId
+        public Task<IEnumerable<object>> GetDoctorAvailability(int doctorId);
         #endregion
 
-        #region 9 - Insert Appointment and return success
-        Task<ActionResult<Appointment>> BookAppointment(Appointment appointment);
+        #region 7 - Auto-generate Token Number for Appointments
+        public Task<int> GenerateTokenNumber(int doctorId, DateTime appointmentDate, int timeSlotId);
+        #endregion
+
+        #region 8 - Insert Appointment and return success
+        public Task<ActionResult<Appointment>> BookAppointment(Appointment appointment);
         #endregion
 
         #endregion
