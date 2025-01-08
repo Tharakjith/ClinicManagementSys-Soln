@@ -19,7 +19,6 @@ public partial class LoginRegistration
 
     public DateTime? RegisteredDate { get; set; }
 
-    [System.Text.Json.Serialization.JsonIgnore]
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
 
     public virtual Role? Role { get; set; }
