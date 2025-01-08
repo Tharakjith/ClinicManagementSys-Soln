@@ -10,6 +10,7 @@
         public DateTime BillDateTime { get; set; }
         public string Dosage { get; set; }
         public string Frequency { get; set; }
-        public int NumberofDays { get; set; }
+        public int? NumberOfDays { get; set; }
+        public decimal? Cost { get; set; }
     }
 }

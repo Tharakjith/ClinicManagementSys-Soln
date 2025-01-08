@@ -62,6 +62,14 @@ namespace ClinicManagementSys
             builder.Services.AddScoped<ILoginRepository, LoginRepository>();
             builder.Services.AddScoped<ILabRepository, LabRepository>();
             builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+            builder.Services.AddScoped<IPharmacistRepository, PharmacistRepository>();
+            builder.Services.AddScoped<ILabtestListRepository, LabtestListRepository>();
+            builder.Services.AddScoped<ILabtestPrescriptionRepository, LabtestPrescriptionRepository>();
+            builder.Services.AddScoped<IMedicinePrescriptionRepository, MedicinePrescriptionRepository>();
+            builder.Services.AddScoped<IStartDiagnosysReository, StartDiagnosysRepository>();
+            builder.Services.AddScoped<IViewLabReportRepository, ViewLabReportRepository>();
+            builder.Services.AddScoped<IViewPatientAppoinmentRepository, ViewPatientAppoinmentRepository>();
+            builder.Services.AddScoped<ILabTestRepository, LabTestRepository>();
 
             builder.Services.AddScoped<IReceptionistRepository, ReceptionistRepository>();
 
