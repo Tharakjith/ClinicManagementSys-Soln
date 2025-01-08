@@ -21,6 +21,7 @@ namespace ClinicManagementSys.Controllers
         #region 1- get all Medicine-search all
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MedicineDetail>>> GetAllMedicines()
+        
         {
             var medicines = await _repository.GetTblMedicines();
             if (medicines == null)

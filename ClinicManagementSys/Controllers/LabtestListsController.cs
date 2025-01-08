@@ -1,6 +1,7 @@
 ﻿using ClinicManagementSys.Repository;
 using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -50,97 +51,52 @@ namespace ClinicManagementSys.Controllers
 
         #endregion
 
-        //#region 2- get all employees-search all
-        //[HttpGet("vm")]
-        //public async Task<ActionResult<IEnumerable<EmpDeptViewModel>>> GetAllEmployeesByViewModel()
-        //{
-        //    var employees = await _repository.GetViewModelEmployees();
-        //    if (employees == null)
-        //    {
-        //        return NotFound("No Employees found");
-        //    }
+        #region 3- get all labtest bill-search all
+        [HttpGet("vm1")]
+        public async Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetAllLabtestBillByViewModel()
+        {
+            var labtests = await _repository.GetViewModelLabtestBill();
+            if (labtests == null)
+            {
+                return NotFound("No Labtest Bill found");
+            }
 
         //    return Ok(employees);
         //}
 
         //#endregion
 
-        //#region 6 - Update Employee - Return  EmployeeRecord
-        //[HttpPut("{id}")]
+        #region 4 -  get labtest report
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LabTestReportViewModel>>> GetAllLabTestReports()
 
-        //public async Task<ActionResult<TblEmployee>> UpdatePutTblEmployee(int id, TblEmployee employee)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //insert a new record and return as an object named employee
-        //        var updateEmployee = await _repository.PutTblEmployee(id, employee);
-        //        if (updateEmployee != null)
-        //        {
-        //            return Ok(updateEmployee);
-        //        }
-        //        else
-        //        {
-        //            return NotFound();
-        //        }
-        //    }
-        //    return BadRequest();
+        {
+            var reports = await _repository.GetAllLabTestReportsAsync();
+            return Ok(reports);
+        }
+        #endregion
+        #region 5 - Get a lab test report by ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<LabTestReportViewModel>> GetLabTestReportById(int id)
+        {
+            var report = await _repository.GetLabTestReportByIdAsync(id);
+            if (report == null) return NotFound();
 
-        //}
+            return Ok(report);
+        }
+        #endregion
+        #region 6 - Update a lab test report
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateLabTestReport(int id, LabTestReportViewModel model)
+        {
+            if (id != model.TpId) return BadRequest("Report ID mismatch");
 
-        //#endregion
+            var updated = await _repository.UpdateLabTestReportAsync(id, model);
+            if (!updated) return NotFound();
 
-        //#region 4 -  Insert an Employee - Return Employee Record
-        //[HttpPost]
-        //public async Task<ActionResult<TblEmployee>> InsertPostTblEmployeesReturnRecord(TblEmployee employee)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //insert a new record and return as an object named employee
-        //        var newEmployee = await _repository.PostTblEmployeesReturnRecord(employee);
-        //        if (newEmployee != null)
-        //        {
-        //            return Ok(newEmployee);
-        //        }
-        //        else
-        //        {
-        //            return NotFound();
-        //        }
-        //    }
-        //    return BadRequest();
-        //}
-        //#endregion
+            return NoContent();
 
-
-        ////// GET: api/<LabtestListsController>
-        ////[HttpGet]
-        ////public IEnumerable<string> Get()
-        ////{
-        ////    return new string[] { "value1", "value2" };
-        ////}
-
-        ////// GET api/<LabtestListsController>/5
-        ////[HttpGet("{id}")]
-        ////public string Get(int id)
-        ////{
-        ////    return "value";
-        ////}
-
-        ////// POST api/<LabtestListsController>
-        ////[HttpPost]
-        ////public void Post([FromBody] string value)
-        ////{
-        ////}
-
-        ////// PUT api/<LabtestListsController>/5
-        ////[HttpPut("{id}")]
-        ////public void Put(int id, [FromBody] string value)
-        ////{
-        ////}
-
-        ////// DELETE api/<LabtestListsController>/5
-        ////[HttpDelete("{id}")]
-        ////public void Delete(int id)
-        ////{
-        ////}
+        }
+        #endregion
     }
 }

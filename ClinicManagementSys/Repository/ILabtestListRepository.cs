@@ -14,10 +14,8 @@ namespace ClinicManagementSys.Repository
         ////3- Get All Employees using ViewModel;
         //public Task<ActionResult<IEnumerable<EmpDeptViewModel>>> GetViewModelEmployees();
 
-        ////4 - Update an Employee with ID and employee
-        //public Task<ActionResult<TblEmployee>> PutTblEmployee(int id, TblEmployee tblEmployee);
-
-        ////5 - Insert an employee - RetuRN Employee Record
-        //public Task<ActionResult<TblEmployee>> PostTblEmployeesReturnRecord(TblEmployee tblEmployee);
+        public Task<IEnumerable<LabTestReportViewModel>> GetAllLabTestReportsAsync();
+        public Task<LabTestReportViewModel> GetLabTestReportByIdAsync(int id);
+        public Task<bool> UpdateLabTestReportAsync(int id, LabTestReportViewModel model);
     }
 }
