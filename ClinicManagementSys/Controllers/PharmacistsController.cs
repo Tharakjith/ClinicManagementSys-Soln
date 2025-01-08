@@ -135,7 +135,7 @@ namespace ClinicManagementSys.Controllers
         }
 
         #endregion
-        #region 2- get all Prescription Bill-search all
+        #region 7 - get all Prescription Bill-search all
         [HttpGet("vm2")]
         public async Task<ActionResult<IEnumerable<PrescriptionBillViewModel>>> GetAllMedicineBillByViewModel()
         {
@@ -146,6 +146,34 @@ namespace ClinicManagementSys.Controllers
             }
 
             return Ok(medicinebill);
+        }
+        #endregion
+
+        #region 8 - get all Medicine DIstribute by view model
+        [HttpGet("vm3")]
+        public async Task<ActionResult<IEnumerable<MedicineDistributionViewModel>>> GetAllMedicineDistributeByViewModel()
+        {
+            var medicinedistribute = await _repository.GetViewModelMedicineDitribute();
+            if (medicinedistribute == null)
+            {
+                return NotFound("No Medicine to Distribute is not found");
+            }
+
+            return Ok(medicinedistribute);
+        }
+        #endregion
+
+        #region 9 Get All Categories
+        [HttpGet("v2")]
+        public async Task<ActionResult<IEnumerable<Category>>> GetAllCategory()
+        {
+            var category = await _repository.GetCategory();
+            if (category == null)
+            {
+                return NotFound("No Categories found");
+            }
+
+            return Ok(category);
         }
         #endregion
     }

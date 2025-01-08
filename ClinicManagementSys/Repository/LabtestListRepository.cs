@@ -113,43 +113,34 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
-        //#region 3- Get all using ViewModel
-        //public async Task<ActionResult<IEnumerable<EmpDeptViewModel>>> GetViewModelEmployees()
-        //{
-        //    //LINQ
-        //    try
-        //    {
-        //        if (_context != null)
-        //        {
-        //            /*
-        //             SELECT e.EnployeeId, e.EnployeeName, d.DepartnentName
-        //             FROM TbLEmpLoyees e
-        //             JOIN TDLDepartnents d
-        //             ON e.DepartmentId=d.DepartnentId
-        //            */
-        //            // LINQ
-        //            //return await db.TblEmployees.ToListAsync();
-        //            return await (from e in _context.TblEmployees
-        //                          from d in _context.TblDepartments
-        //                          where e.DepartmentId == d.DepartmentId
-        //                          select new EmpDeptViewModel
-        //                          {
-        //                              EmployeeId = e.EmployeeId,
-        //                              EmployeeName = e.EmployeeName,
-        //                              Designation = e.Designation,
-        //                              DepartmentName = d.DepartmentName,
-        //                              Contact = e.Contact
-        //                          }).ToListAsync();
-        //        }
-        //        //Return an empty List if context is null
-        //        return new List<EmpDeptViewModel>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //}
-        //#endregion
+        #region 3- Get all using ViewModel
+        public async Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetViewModelLabtestBill()
+        {
+            //LINQ
+            try
+            {
+                if (_context != null)
+                {
+                    return await (from p in _context.Patients
+                                  from s in _context.Staff
+                                  from l in _context.Labtests
+                                  select new LabtestBillViewModel
+                                  {
+                                      PatientName = p.PatientName,
+                                      DoctorName = s.StaffName, // assuming staff are acting as doctors
+                                      TestName = l.TestName,
+                                      Price = l.Price
+                                  }).ToListAsync();
+                }
+                //Return an empty List if context is null
+                return new List<LabtestBillViewModel>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
 
         #region 4 - get labtest report
         public async Task<IEnumerable<LabTestReportViewModel>> GetAllLabTestReportsAsync()

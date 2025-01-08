@@ -25,13 +25,13 @@ namespace ClinicManagementSys.Controllers
         [HttpGet("vm")]
         public async Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetAllLabtestByViewModel()
         {
-            var employees = await _repository.GetViewModelLabtestList();
-            if (employees == null)
+            var labtests = await _repository.GetViewModelLabtestList();
+            if (labtests == null)
             {
                 return NotFound("No Labtests found");
             }
 
-            return Ok(employees);
+            return Ok(labtests);
         }
 
         #endregion
@@ -40,13 +40,13 @@ namespace ClinicManagementSys.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AppPatStaLabViewModel>> GetLabtestById(int tokenNumber)
         {
-            var employees = await _repository.GetLabtestById(tokenNumber);
-            if (employees == null)
+            var labtests = await _repository.GetLabtestById(tokenNumber);
+            if (labtests == null)
             {
-                return NotFound("No Employees found");
+                return NotFound("No Labtests found");
             }
 
-            return Ok(employees);
+            return Ok(labtests);
         }
 
         #endregion
@@ -61,10 +61,10 @@ namespace ClinicManagementSys.Controllers
                 return NotFound("No Labtest Bill found");
             }
 
-        //    return Ok(employees);
-        //}
+            return Ok(labtests);
+        }
 
-        //#endregion
+        #endregion
 
         #region 4 -  get labtest report
         [HttpGet]

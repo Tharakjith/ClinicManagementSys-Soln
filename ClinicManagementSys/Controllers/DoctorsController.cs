@@ -123,6 +123,8 @@ namespace ClinicManagementSys.Controllers
             }
         }
         #endregion
+
+
         [HttpPost("AddDoctorAvailability")]
         public async Task<IActionResult> AddDoctorAvailability([FromBody] DoctorAvailabilityViewModel model)
         {
