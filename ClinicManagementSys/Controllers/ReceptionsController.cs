@@ -212,11 +212,7 @@ namespace ClinicManagementSys.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (optional)
-                Console.WriteLine($"Error: {ex.Message}");
-
-                // Return a friendly message in case of an exception
-                return BadRequest("Unable to fetch the consultation fee. Please try again.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
         #endregion
@@ -279,6 +275,13 @@ namespace ClinicManagementSys.Controllers
 
             try
             {
+                var tokenNumber = await _repository.GenerateTokenNumber(appointment.DoctorId, appointment.AppointmentDate, appointment.AvailabilityId);
+                appointment.TokenNumber = tokenNumber;
+
+                // Generate consultation fee based on doctor
+                var consultationFee = await _repository.GetConsultationFeeByDoctorId(appointment.DoctorId);
+                appointment.ConsultationFee = consultationFee;
+
                 // Call the repository method to book the appointment
                 var bookedAppointment = await _repository.BookAppointment(appointment);
 
