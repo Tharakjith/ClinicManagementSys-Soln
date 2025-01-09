@@ -27,5 +27,11 @@ namespace ClinicManagementSys.Repository
 
         //7- Get All PrescriptionBill using ViewModel;
         public Task<ActionResult<IEnumerable<PrescriptionBillViewModel>>> GetViewModelPrescriptionBill();
+
+        //8 - Get All Medicine Distribute details using viewmodel
+        public Task<List<MedicineDistributionViewModel>> GetViewModelMedicineDitribute();
+
+        //8 - Get all categories
+        public Task<ActionResult<IEnumerable<Category>>> GetCategory();
     }
 }

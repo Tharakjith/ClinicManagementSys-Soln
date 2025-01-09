@@ -49,6 +49,7 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region  4 - Get all Doctors based on Specialization
+
         public Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId);
         #endregion
 

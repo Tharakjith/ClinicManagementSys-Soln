@@ -23,7 +23,7 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    return await _context.MedicineDetails.ToListAsync();
+                    return await _context.MedicineDetails.Include(ctg => ctg.Category).ToListAsync();
                 }
                 //Return an empty List if context is null
                 return new List<MedicineDetail>();
@@ -44,7 +44,7 @@ namespace ClinicManagementSys.Repository
                 if (_context != null)
                 {
                     var Medicine = await _context.MedicineDetails
-                    .FirstOrDefaultAsync(emp => emp.MedicineId == id);
+                    .Include(emp => emp.Category).FirstOrDefaultAsync(emp => emp.MedicineId == id);
                     return Medicine;
                 }
                 return null;
@@ -62,7 +62,7 @@ namespace ClinicManagementSys.Repository
         {
             try
             {
-                //check if employee object is not null
+                //check if medicine object is not null
                 if (medicine == null)
                 {
                     throw new ArgumentNullException(nameof(medicine), "Medicine data is null");
@@ -74,14 +74,19 @@ namespace ClinicManagementSys.Repository
                     throw new InvalidOperationException("Database context is not initialized");
                 }
 
-                //Add the employee record to the DbContext
+                //Add the medicine record to the DbContext
                 await _context.MedicineDetails.AddAsync(medicine);
 
                 //save changes to the database
                 await _context.SaveChangesAsync();
 
+                //Retrieve the employee with the related Department
+                var medicineWithCategory = await _context.MedicineDetails
+                    .Include(e => e.Category)//Eager load
+                    .FirstOrDefaultAsync(e => e.MedicineId == medicine.MedicineId);
+
                 //Return the added employee record
-                return medicine;
+                return medicineWithCategory;
             }
             catch (Exception ex)
             {
@@ -100,7 +105,7 @@ namespace ClinicManagementSys.Repository
         {
             try
             {
-                //check if employee object is not null
+                //check if medicine object is not null
                 if (medicine == null)
                 {
                     throw new ArgumentNullException(nameof(medicine), "Medicine data is null");
@@ -125,7 +130,7 @@ namespace ClinicManagementSys.Repository
                 existingMedicine.MedicineName = medicine.MedicineName;
                 existingMedicine.ManufacturingDate = medicine.ManufacturingDate;
                 existingMedicine.ExpiryDate = medicine.ExpiryDate;
-                existingMedicine.Category = medicine.Category;
+                existingMedicine.CategoryId = medicine.CategoryId;
                 existingMedicine.Cost = medicine.Cost;
                 existingMedicine.IsActive = medicine.IsActive;
 
@@ -133,8 +138,13 @@ namespace ClinicManagementSys.Repository
                 //save changes to the database
                 await _context.SaveChangesAsync();
 
+                //Retrieve the employee with the related Department
+                var medicineWithCategory = await _context.MedicineDetails
+                    .Include(e => e.Category)//Eager load
+                    .FirstOrDefaultAsync(e => e.MedicineId == medicine.MedicineId);
+
                 //Return the added employee record
-                return medicine;
+                return medicineWithCategory;
 
             }
             catch (Exception ex)
@@ -147,14 +157,14 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
-        #region 5 - Delete an Employee
+        #region 5 - Delete an Medicine
 
         public JsonResult DeleteTblMedicine(int id)
         {
             try
             {
 
-                //check if employee object is not null
+                //check if medicine object is not null
                 if (id == null)
                 {
                     return new JsonResult(new
@@ -186,7 +196,7 @@ namespace ClinicManagementSys.Repository
                     };
                 }
 
-                //find the employee by ID
+                //find the medicine by ID
                 var existingMedicine = _context.MedicineDetails.Find(id);
 
                 if (existingMedicine == null)
@@ -202,7 +212,7 @@ namespace ClinicManagementSys.Repository
                         StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
-                //remove the employee record from the database
+                //remove the medicine record from the database
 
                 _context.MedicineDetails.Remove(existingMedicine);
 
@@ -253,9 +263,11 @@ namespace ClinicManagementSys.Repository
                                   from a in _context.Appointments
                                   from pt in _context.Patients
                                   from d in _context.Doctors
+                                  from s in _context.Staff
                                   where p.AppointmentId == a.AppointmentId
                                         && a.PatientId == pt.PatientId
                                         && a.DoctorId == d.DoctorId
+                                        && s.StaffId == s.StaffId
                                   select new PrescriptionViewModel
                                   {
                                       PrescriptionId = p.PrescriptionId,
@@ -263,9 +275,9 @@ namespace ClinicManagementSys.Repository
                                       MedicineId = p.MedicineId,
                                       Dosage = p.Dosage,
                                       Frequency = p.Frequency,
-                                      //NumberofDays = p.NumberofDays,
+                                      NumberofDays = p.NumberofDays,
                                       PatientName = pt.PatientName,
-                                     // StaffName = d.Staff.StaffName // Assuming Doctor has a foreign key to Staff for StaffName
+                                      StaffName = s.StaffName // Assuming Doctor has a foreign key to Staff for StaffName
                                   }).ToListAsync();
 
                 }
@@ -279,7 +291,7 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
-        #region 7- Get all using ViewModel
+        #region 7- Get all bill using ViewModel
         public async Task<ActionResult<IEnumerable<PrescriptionBillViewModel>>> GetViewModelPrescriptionBill()
         {
             //LINQ
@@ -302,13 +314,73 @@ namespace ClinicManagementSys.Repository
                                       MedicineName = md.MedicineName,
                                       Dosage = pr.Dosage,
                                       Frequency = pr.Frequency,
-                                    //  NumberOfDays = pr.NumberofDays,
-                                     // Cost = md.Cost
+                                      NumberOfDays = pr.NumberofDays,
+                                      Cost = md.Cost
                                   }).ToListAsync();
 
                 }
                 //Return an empty List if context is null
                 return new List<PrescriptionBillViewModel>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
+
+        #region 8- Medicine distribute viewmodel
+        public async Task<List<MedicineDistributionViewModel>> GetViewModelMedicineDitribute()
+        {
+            //LINQ
+            try
+            {
+                if (_context != null)
+                {
+
+                    return await (from md in _context.MedicineDistributions
+                                  join p in _context.Prescriptions on md.PrescriptionId equals p.PrescriptionId
+                                  join mi in _context.MedicineInventories on md.MedicineId equals mi.MedicineId
+                                  join ms in _context.MedDistributionStatuses on md.MedStatusId equals ms.MedStatusId
+                                  join mdet in _context.MedicineDetails on md.MedicineId equals mdet.MedicineId
+                                  select new MedicineDistributionViewModel
+                                  {
+                                      DistributionId = md.MedDistId,
+                                      PrescriptionId = md.PrescriptionId,
+                                      MedicineId = md.MedicineId,
+                                      QuantityDistributed = md.QuantityDistributed,
+                                      MedStatusId = md.MedStatusId,
+                                      MedicineName = mdet.MedicineName,
+                                      Dosage = p.Dosage,
+                                      Frequency = p.Frequency,
+                                      NumberofDays = p.NumberofDays,
+                                      StockInHand = mi.StockInHand,
+                                      MedStatusName = ms.MedStatusName
+                                  }).ToListAsync();
+                }
+                //Return an empty List if context is null
+                return new List<MedicineDistributionViewModel>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
+
+        #region 9- Get all categories
+
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategory()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    //find th employee by id
+                    return await _context.Categories.ToListAsync();
+                }
+                //Return an empty List if context is null
+                return null;
             }
             catch (Exception ex)
             {

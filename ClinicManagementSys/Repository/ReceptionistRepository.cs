@@ -226,24 +226,6 @@ namespace ClinicManagementSys.Repository
         #region APPOINTMENT BOOKING
 
         #region 1 -  Get all Appointment from DB 
-        //public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
-        //{
-        //    try
-        //    {
-        //        if (_context != null)
-        //        {
-        //            return await _context.Appointments.Include(e => e.Patient).Include(e => e.Specialization).Include(e => e.Doctor)
-        //           .Include(e => e.DailyAvailability).Include(e => e.AppointmentStatus).ToListAsync();
-        //        }
-        //        //Returns an empty list if context is null
-        //        return new List<Appointment>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new InvalidOperationException($"Error fetching from Specialization's doctors: {ex.Message}");
-        //    }
-        //}
-
         public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
         {
             try
@@ -328,18 +310,19 @@ namespace ClinicManagementSys.Repository
                         .ToListAsync();
 
                     return doctors;
-                }
+                            }
 
-                return Enumerable.Empty<object>();
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Error fetching doctors by specialization: {ex.Message}");
-            }
-        }
+        return Enumerable.Empty<object>();
+    }
+    catch (Exception ex)
+    {
+        throw new InvalidOperationException($"Error fetching doctors by specialization: {ex.Message}");
+    }
+}
 
-        #endregion
+#endregion
 
+  
         #region 5 - Get Consultation Fee by Doctor ID
         public async Task<decimal> GetConsultationFeeByDoctorId(int doctorId)
         {
@@ -356,7 +339,8 @@ namespace ClinicManagementSys.Repository
                     // Check if the doctor was found
                     if (consultationFee != 0)
                     {
-                        return consultationFee;
+                        //return consultationFee;
+
                     }
 
                     throw new InvalidOperationException("Doctor not found");
