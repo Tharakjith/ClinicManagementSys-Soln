@@ -422,54 +422,7 @@ namespace ClinicManagementSys.Repository
         //}
         #endregion
 
-        #region 5 - Get Doctor's Daily Availability by Doctor ID and Date
-        public async Task<Weekday> GetWeekdayByName(string dayName)
-        {
-            return await _context.Weekdays.FirstOrDefaultAsync(w => w.WeekdaysName.Equals(dayName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public async Task<IEnumerable<Availability>> GetAvailabilityByDoctorIdAndWeekday(int doctorId, int weekdayId)
-        {
-            return await _context.Availabilities
-                .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekdayId)
-                .Include(a => a.TimeSlot)
-                .ToListAsync();
-        }
-        public async Task<ActionResult<IEnumerable<Availability>>> GetDoctorAvailabilityByDoctorIdAndDate(int doctorId, DateTime date)
-        {
-            try
-            {
-                if (_context != null)
-                {
-                    // Step 1: Determine the name of the day for the given date
-                    string dayName = date.DayOfWeek.ToString();
-
-                    // Step 2: Fetch the weekday ID from the weekdays table
-                    var weekday = await _context.Weekdays
-                        .FirstOrDefaultAsync(w => w.WeekdaysName.Equals(dayName, StringComparison.OrdinalIgnoreCase));
-
-                    if (weekday == null)
-                    {
-                        return new List<Availability>(); // Return empty if the weekday is not found
-                    }
-
-                    // Step 3: Find the doctor's availability for that weekday
-                    var availability = await _context.Availabilities
-                        .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekday.WeekdaysId)
-                        .Include(a => a.TimeSlot) // Include timeslot details
-                        .ToListAsync();
-
-                    return availability; // Return the availability details
-                }
-
-                return new List<Availability>(); // Return empty if the context is null
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Error fetching doctor's availability: {ex.Message}");
-            }
-        }
-        #endregion
+      
 
         #region 6 - Get Consultation Fee by Doctor ID
         public async Task<decimal> GetConsultationFeeByDoctorId(int doctorId)

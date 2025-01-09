@@ -230,8 +230,9 @@ namespace ClinicManagementSys.Repository
                 existingstaff.Address = staff.Address;
                 existingstaff.PhoneNumber = staff.PhoneNumber;
                 existingstaff.Email = staff.Email;
-                
-               
+                existingstaff.Salary = staff.Salary;
+
+
                 existingstaff.StaffIsActive = staff.StaffIsActive;
 
 
