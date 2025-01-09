@@ -50,7 +50,11 @@ namespace ClinicManagementSys.Repository
 
         #region  4 - Get all Doctors based on Specialization
 
+
+        #region 5 - Get Daily Availability of a Doctor
+       // public Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date);
         public Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId);
+
         #endregion
 
         #region 5 - Get Consultation Fee by Doctor ID

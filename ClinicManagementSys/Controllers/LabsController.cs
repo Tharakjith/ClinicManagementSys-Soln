@@ -112,5 +112,22 @@ namespace ClinicManagementSys.Controllers
             }
         }
         #endregion
+
+        [HttpPost]
+        public async Task<ActionResult<Labtest>> InsertTblEmployeesReturnRecord(Labtest employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid employee data.");
+            }
+
+            var newEmployee = await _repository.postTblEmployeesReturnRecord(employee);
+            if (newEmployee != null)
+            {
+                return Ok(newEmployee);
+            }
+
+            return StatusCode(500, "An error occurred while saving the employee.");
+        }
     }
 }
