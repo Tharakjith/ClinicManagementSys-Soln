@@ -57,7 +57,7 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region 5 - Get Daily Availability of a Doctor
-        public Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date);
+       // public Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date);
         #endregion
 
         #region 6 - Get Doctor's Daily Availability by Doctor ID and Date

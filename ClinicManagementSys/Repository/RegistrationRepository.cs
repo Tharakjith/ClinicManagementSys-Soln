@@ -91,19 +91,32 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    return await _context.LoginRegistrations
-                        .Include(s => s.Role)
-                        .Include(s => s.Staff)
-                        .ToListAsync();
+                    // LINQ query to join LoginRegistration with Staff and Role
+                    var query = await (from login in _context.LoginRegistrations
+                                       join staff in _context.Staff on login.StaffId equals staff.StaffId
+                                       join role in _context.Roles on login.RoleId equals role.RoleId
+                                       select new LoginRegistration
+                                       {
+                                           RegistrationId = login.RegistrationId,
+                                           Username = login.Username,
+                                           StaffName = staff.StaffName,
+                                           RoleName = role.RoleName,
+                                           RisActive = login.RisActive,
+                                           RegisteredDate = login.RegisteredDate
+                                       }).ToListAsync();
+
+                    return query;
                 }
 
                 return new List<LoginRegistration>();
             }
             catch (Exception ex)
             {
+                // Log error if needed
                 return null;
             }
         }
+
 
         public async Task<ActionResult<LoginRegistration>> Getloginbycode(int id)
         {
@@ -220,6 +233,44 @@ namespace ClinicManagementSys.Repository
             }
         }
 
-        
+        public async Task<ActionResult<IEnumerable<Staff>>> GetTblDepartments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Staff.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Staff>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<IEnumerable<Role>>> GetTblDepartmentss()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Roles.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Role>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        Task<ActionResult<IEnumerable<LoginRegistration>>> IRegistrationRepository.GetTblDepartments()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

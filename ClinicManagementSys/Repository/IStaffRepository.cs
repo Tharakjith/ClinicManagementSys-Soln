@@ -28,6 +28,8 @@ namespace ClinicManagementSys.Repository
         #endregion
         public  Task<ActionResult<IEnumerable<StaffDepViewModel>>> GetstaffDetals();
         public  Task<StaffDepViewModel> GetStaffDetailsAsync(int? staffId, string phoneNumber);
+        public Task<ActionResult<IEnumerable<Department>>> GetTblDepartments();
+        public Task<ActionResult<Staff>> postTblEmployeesReturnRecord(Staff tblemployee);
     }
 }
 

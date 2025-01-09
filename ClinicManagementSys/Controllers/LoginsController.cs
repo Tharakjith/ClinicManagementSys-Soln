@@ -27,9 +27,9 @@ namespace ClinicManagementSys.Controllers
         #region validate username and password
 
 
-        
-        [AllowAnonymous] // this refers to while login donot check token  number check only username and password for authorization
+        [AllowAnonymous]
         [HttpGet("{username}/{userpass}")]
+    
         public async Task<IActionResult> LoginCredential(string username, string userpass)
         {
             IActionResult response = Unauthorized(); //401 error

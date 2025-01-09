@@ -204,7 +204,39 @@ namespace ClinicManagementSys.Repository
                 return null;
             }
         }
+        public async Task<ActionResult<Labtest>> postTblEmployeesReturnRecord(Labtest employee)
+        {
+            try
+            {
+                if (employee == null)
+                {
+                    throw new ArgumentNullException(nameof(employee), "Employee data is null");
+                }
 
-       
+                if (_context == null)
+                {
+                    throw new InvalidOperationException("Database context is not initialized.");
+                }
+
+               
+
+                // Add employee to DbContext
+                await _context.Labtests.AddAsync(employee);
+                await _context.SaveChangesAsync();
+
+                // Retrieve the employee with the related department
+                var employeewithDepartment = await _context.Labtests
+                    .FirstOrDefaultAsync(e => e.LabTestId == employee.LabTestId);
+
+                return employeewithDepartment;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new BadRequestObjectResult($"An error occurred: {ex.Message}");
+            }
+        }
+
+
     }
 }

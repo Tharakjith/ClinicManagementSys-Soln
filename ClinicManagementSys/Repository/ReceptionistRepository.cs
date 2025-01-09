@@ -254,7 +254,7 @@ namespace ClinicManagementSys.Repository
                         .Include(a => a.Patient)
                         .Include(a => a.Specialization)
                         .Include(a => a.Doctor)
-                        .Include(a => a.DailyAvailability)
+                        .Include(a => a.Availability)
                         .Include(a => a.AppointmentStatus)
                         .ToListAsync();
                 }
@@ -399,27 +399,27 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region   Get Daily Availability of a Doctor
-        public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
-        {
-            try
-            {
-                if (_context != null)
-                {
-                    // Fetching DailyAvailability by DoctorId and AvailableDate
-                    var dailyAvailabilities = await _context.DailyAvailabilities
-                        .Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
-                        .Include(d => d.Availability.Doctor)
-                        .ToListAsync();
+        //public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
+        //{
+        //    try
+        //    {
+        //        if (_context != null)
+        //        {
+        //            // Fetching DailyAvailability by DoctorId and AvailableDate
+        //            var dailyAvailabilities = await _context.DailyAvailabilities
+        //                .Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
+        //                .Include(d => d.Availability.Doctor)
+        //                .ToListAsync();
 
-                    return dailyAvailabilities;
-                }
-                return new List<DailyAvailability>();
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
-            }
-        }
+        //            return dailyAvailabilities;
+        //        }
+        //        return new List<DailyAvailability>();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
+        //    }
+        //}
         #endregion
 
         #region 5 - Get Doctor's Daily Availability by Doctor ID and Date

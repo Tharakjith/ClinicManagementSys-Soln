@@ -271,8 +271,59 @@ namespace ClinicManagementSys.Repository
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<ActionResult<IEnumerable<Department>>> GetTblDepartments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Departments.ToListAsync();
+                }
 
+                //return an empty list if context is null
+                return new List<Department>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<Staff>> postTblEmployeesReturnRecord(Staff employee)
+        {
+            try
+            {
+                if (employee == null)
+                {
+                    throw new ArgumentNullException(nameof(employee), "Employee data is null");
+                }
 
+                if (_context == null)
+                {
+                    throw new InvalidOperationException("Database context is not initialized.");
+                }
+
+                // Validate DepartmentId
+                if (!await _context.Departments.AnyAsync(d => d.DepartmentId == employee.DepartmentId))
+                {
+                    throw new InvalidOperationException("Invalid DepartmentId");
+                }
+
+                // Add employee to DbContext
+                await _context.Staff.AddAsync(employee);
+                await _context.SaveChangesAsync();
+
+                // Retrieve the employee with the related department
+                var employeewithDepartment = await _context.Staff.Include(e => e.Department)
+                    .FirstOrDefaultAsync(e => e.StaffId == employee.StaffId);
+
+                return employeewithDepartment;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new BadRequestObjectResult($"An error occurred: {ex.Message}");
+            }
+        }
 
     }
 }
