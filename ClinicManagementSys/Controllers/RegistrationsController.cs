@@ -120,5 +120,28 @@ namespace ClinicManagementSys.Controllers
             }
         }
         #endregion
+
+        [HttpGet("v2")]
+        public async Task<ActionResult<IEnumerable<LoginRegistration>>> GetAllDepartments()
+        {
+            var departments = await _repository.GetTblDepartments();
+            if (departments == null)
+            {
+                return NotFound("No Department found");
+            }
+
+            return Ok(departments);
+        }
+        [HttpGet("v5")]
+        public async Task<ActionResult<IEnumerable<Role>>> GetAllDepartmentss()
+        {
+            var departments = await _repository.GetTblDepartments();
+            if (departments == null)
+            {
+                return NotFound("No Department found");
+            }
+
+            return Ok(departments);
+        }
     }
 }
