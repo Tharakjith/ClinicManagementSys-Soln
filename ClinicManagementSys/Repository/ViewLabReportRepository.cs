@@ -13,7 +13,7 @@ namespace ClinicManagementSys.Repository
             _context = context;
         }
 
-        #region   2 - Get an Patient based on Id
+        #region   1 - Get an Patient based on Id
         public async Task<ActionResult<LabTestReport>> GetLabTestReportById(int id)
         {
             try

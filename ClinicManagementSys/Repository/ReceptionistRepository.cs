@@ -25,7 +25,7 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    return await _context.Patients.ToListAsync();
+                    return await _context.Patients.OrderByDescending(e => e.PatientId).ToListAsync();
                 }
                 //Returns an empty list if context is null
                 return new List<Patient>();
@@ -226,24 +226,6 @@ namespace ClinicManagementSys.Repository
         #region APPOINTMENT BOOKING
 
         #region 1 -  Get all Appointment from DB 
-        //public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
-        //{
-        //    try
-        //    {
-        //        if (_context != null)
-        //        {
-        //            return await _context.Appointments.Include(e => e.Patient).Include(e => e.Specialization).Include(e => e.Doctor)
-        //           .Include(e => e.DailyAvailability).Include(e => e.AppointmentStatus).ToListAsync();
-        //        }
-        //        //Returns an empty list if context is null
-        //        return new List<Appointment>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new InvalidOperationException($"Error fetching from Specialization's doctors: {ex.Message}");
-        //    }
-        //}
-
         public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
         {
             try
@@ -269,23 +251,6 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region 2 -  Get all Specialization from DB 
-        //public async Task<ActionResult<IEnumerable<Specialization>>> GetSpecializations()
-        //{
-        //    try
-        //    {
-        //        if (_context != null)
-        //        {
-        //            return await _context.Specializations.ToListAsync();
-        //        }
-        //        Returns an empty list if context is null
-        //        return new List<Specialization>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //}
-
         public async Task<ActionResult<IEnumerable<Specialization>>> GetSpecializations()
         {
             try
@@ -324,66 +289,17 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
-        #region  Insert - Appointment Booking
-        //public async Task<ActionResult<Appointment>> PostBookAppointment(Appointment appointment)
-        //{
-        //    try
-        //    {
-        //        if (appointment == null || _context == null)
-        //            throw new ArgumentNullException(nameof(appointment));
-
-        //        // Check for DailyAvailability
-        //        var dailyAvailability = await _context.DailyAvailabilities
-        //            .FirstOrDefaultAsync(d => d.Availability.DoctorId == appointment.DoctorId && d.AvailableDate.Date == appointment.AppointmentDate);
-
-        //        if (dailyAvailability == null || !(dailyAvailability.IsAvailable ?? false))
-        //            throw new InvalidOperationException("Doctor is not available on the selected date.");
-
-        //        // Check the number of existing appointments for the doctor on the given date
-        //        var existingAppointments = await _context.Appointments
-        //            .Where(a => a.DoctorId == appointment.DoctorId && a.AppointmentDate.Date == appointment.AppointmentDate.Date)
-        //            .ToListAsync();
-
-        //        if (existingAppointments.Count >= 20)
-        //            throw new InvalidOperationException("Maximum appointment limit reached for the selected doctor on the chosen date.");
-
-        //        // Generate the next token
-        //        int nextToken = existingAppointments.Count + 1;
-
-        //        // Create and save the appointment
-        //        var newAppointment = new Appointment
-        //        {
-        //            PatientId = appointment.PatientId,
-        //            SpecializationId = appointment.SpecializationId,
-        //            DoctorId = appointment.DoctorId,
-        //            AppointmentDate = appointment.AppointmentDate,
-        //            TokenNumber = nextToken,
-        //            AppointmentStatusId = 1 // Assuming 1 is for 'Booked'
-        //        };
-
-        //        await _context.Appointments.AddAsync(newAppointment);
-        //        await _context.SaveChangesAsync();
-
-        //        // Update the ViewModel with generated appointment details
-        //        appointment.TokenNumber = nextToken;
-        //        appointment.AppointmentId = newAppointment.AppointmentId;
-
-        //        return appointment;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new InvalidOperationException($"Error booking appointment: {ex.Message}");
-        //    }
-        //}
-        #endregion
-
         #region  4 - Get all Doctors based on Specialization
+
         public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId)
+
+        public async Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId
         {
             try
             {
                 if (_context != null)
                 {
+
                     return await _context.Doctors
                         .Where(d => d.SpecializationId == specializationId)
                         .Include(d => d.Specialization)
@@ -458,20 +374,36 @@ namespace ClinicManagementSys.Repository
                         .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekday.WeekdaysId)
                         .Include(a => a.TimeSlot) // Include timeslot details
                         .ToListAsync();
+=======
+                    var doctors = await _context.Doctors
+                        .Where(d => d.SpecializationId == specializationId && d.DoctorIsActive == true)
+                        .Include(d => d.Registration) // Includes the LoginRegistration
+                        .ThenInclude(r => r.Staff)   // Includes the Staff
+                        .Select(d => new
+                        {
+                            DoctorId = d.DoctorId,
+                            DoctorName = d.Registration.Staff.StaffName,
+                            SpecializationName = d.Specialization.SpecializationName,
+                            ConsultationFee = d.ConsultationFee
+                        })
+                        .ToListAsync();
 
-                    return availability; // Return the availability details
-                }
+                    return doctors;
+                            }
 
-                return new List<Availability>(); // Return empty if the context is null
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Error fetching doctor's availability: {ex.Message}");
-            }
-        }
-        #endregion
 
-        #region 6 - Get Consultation Fee by Doctor ID
+        return Enumerable.Empty<object>();
+    }
+    catch (Exception ex)
+    {
+        throw new InvalidOperationException($"Error fetching doctors by specialization: {ex.Message}");
+    }
+}
+
+#endregion
+
+  
+        #region 5 - Get Consultation Fee by Doctor ID
         public async Task<decimal> GetConsultationFeeByDoctorId(int doctorId)
         {
             try
@@ -487,7 +419,8 @@ namespace ClinicManagementSys.Repository
                     // Check if the doctor was found
                     if (consultationFee != 0)
                     {
-                        return consultationFee;
+                        //return consultationFee;
+
                     }
 
                     throw new InvalidOperationException("Doctor not found");
@@ -506,26 +439,71 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
-        #region 7 - Auto-generate Token Number for Appointments
-        public async Task<int> GenerateTokenNumber(int doctorId, DateTime appointmentDate)
+        #region 6 -  Get Daily Availability of a Doctor
+        public async Task<IEnumerable<object>> GetDoctorAvailability(int doctorId)
         {
             try
             {
                 if (_context != null)
                 {
-                    var existingAppointments = await _context.Appointments
-                        .Where(a => a.DoctorId == doctorId && a.AppointmentDate.Date == appointmentDate.Date)
+                    var availability = await _context.Availabilities
+                        .Where(a => a.DoctorId == doctorId)
+                        .Include(a => a.TimeSlot) // Include TimeSlot details
+                        .Select(a => new
+                        {
+                            AvailabilityId = a.AvailabilityId,
+                            TimeSlotId = a.TimeSlotId,
+                            Session = a.Session,
+                            StartTime = a.TimeSlot.StartTime,
+                            EndTime = a.TimeSlot.EndTime,
+                            Weekday = a.TimeSlot.Weekdays.WeekdaysName
+                        })
                         .ToListAsync();
 
-                    return existingAppointments.Count + 1; // Tokens will be sequential
+                    return availability;
                 }
-                throw new InvalidOperationException("Database context is not initialized");
+
+                return Enumerable.Empty<object>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching doctor availability: {ex.Message}");
+            }
+        }
+        #endregion
+
+        #region 7 - Auto-generate Token Number for Appointments
+        public async Task<int> GenerateTokenNumber(int doctorId, DateTime appointmentDate, int timeSlotId)
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    // Get existing appointments for the given doctor, date, and time slot
+                    var existingAppointments = await _context.Appointments
+                        .Where(a => a.DoctorId == doctorId
+                                    && a.AppointmentDate.Date == appointmentDate.Date
+                                    && a.Availability.TimeSlotId == timeSlotId)
+                        .OrderBy(a => a.TokenNumber)
+                        .ToListAsync();
+
+                    // Check if the token limit (15 per time slot) is reached
+                    if (existingAppointments.Count >= 15)
+                    {
+                        throw new InvalidOperationException("Token limit for this time slot is reached.");
+                    }
+
+                    // Generate the next token number
+                    return existingAppointments.Count + 1;
+                }
+                throw new InvalidOperationException("Database context is not initialized.");
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Error generating token number: {ex.Message}");
             }
         }
+
         #endregion
 
         #region 8 - Insert Appointment and return success
@@ -541,7 +519,7 @@ namespace ClinicManagementSys.Repository
                     .FirstOrDefaultAsync(d => d.DoctorId == appointment.DoctorId);
 
                 // Generate Token Number
-                var tokenNumber = await GenerateTokenNumber(appointment.DoctorId, appointment.AppointmentDate);
+                var tokenNumber = await GenerateTokenNumber(appointment.DoctorId, appointment.AppointmentDate, appointment.AvailabilityId);
 
                 // Set the token number and appointment status
                 appointment.TokenNumber = tokenNumber;
