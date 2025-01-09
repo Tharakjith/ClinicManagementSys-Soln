@@ -13,11 +13,13 @@ public partial class MedicineDetail
 
     public DateTime ExpiryDate { get; set; }
 
-    public string Category { get; set; } = null!;
+    public int CategoryId { get; set; }
 
     public decimal Cost { get; set; }
 
     public bool IsActive { get; set; }
+
+    public virtual Category Category { get; set; } = null!;
 
     public virtual ICollection<MedicineDistribution> MedicineDistributions { get; set; } = new List<MedicineDistribution>();
 

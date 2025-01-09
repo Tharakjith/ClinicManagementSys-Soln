@@ -11,8 +11,8 @@ namespace ClinicManagementSys.Repository
         //2 -Get an Employee based on Id
         public Task<AppPatStaLabViewModel> GetLabtestById(int tokenNumber);
 
-        ////3- Get All Employees using ViewModel;
-        //public Task<ActionResult<IEnumerable<EmpDeptViewModel>>> GetViewModelEmployees();
+        //3- Get All Employees using ViewModel;
+        public Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetViewModelLabtestBill();
 
         ////4 - Update an Employee with ID and employee
         //public Task<ActionResult<TblEmployee>> PutTblEmployee(int id, TblEmployee tblEmployee);
