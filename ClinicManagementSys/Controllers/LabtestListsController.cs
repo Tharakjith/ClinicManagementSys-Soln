@@ -24,13 +24,13 @@ namespace ClinicManagementSys.Controllers
         [HttpGet("vm")]
         public async Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetAllLabtestByViewModel()
         {
-            var employees = await _repository.GetViewModelLabtestList();
-            if (employees == null)
+            var labtests = await _repository.GetViewModelLabtestList();
+            if (labtests == null)
             {
                 return NotFound("No Labtests found");
             }
 
-            return Ok(employees);
+            return Ok(labtests);
         }
 
         #endregion
@@ -39,31 +39,31 @@ namespace ClinicManagementSys.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AppPatStaLabViewModel>> GetLabtestById(int tokenNumber)
         {
-            var employees = await _repository.GetLabtestById(tokenNumber);
-            if (employees == null)
+            var labtests = await _repository.GetLabtestById(tokenNumber);
+            if (labtests == null)
             {
-                return NotFound("No Employees found");
+                return NotFound("No Labtests found");
             }
 
-            return Ok(employees);
+            return Ok(labtests);
         }
 
         #endregion
 
-        //#region 2- get all employees-search all
-        //[HttpGet("vm")]
-        //public async Task<ActionResult<IEnumerable<EmpDeptViewModel>>> GetAllEmployeesByViewModel()
-        //{
-        //    var employees = await _repository.GetViewModelEmployees();
-        //    if (employees == null)
-        //    {
-        //        return NotFound("No Employees found");
-        //    }
+        #region 3- get all employees-search all
+        [HttpGet("vm1")]
+        public async Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetAllLabtestBillByViewModel()
+        {
+            var labtests = await _repository.GetViewModelLabtestBill();
+            if (labtests == null)
+            {
+                return NotFound("No Labtest Bill found");
+            }
 
-        //    return Ok(employees);
-        //}
+            return Ok(labtests);
+        }
 
-        //#endregion
+        #endregion
 
         //#region 6 - Update Employee - Return  EmployeeRecord
         //[HttpPut("{id}")]

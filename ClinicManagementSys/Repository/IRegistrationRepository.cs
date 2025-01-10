@@ -6,7 +6,7 @@ namespace ClinicManagementSys.Repository
     public interface IRegistrationRepository
     {
         #region 1-Get all login
-        public Task<ActionResult<IEnumerable<LoginRegistration>>> GetAlllogin();
+        public  Task<ActionResult<IEnumerable<LoginRegistration>>> GetAlllogin();
 
         #endregion
 
@@ -24,6 +24,7 @@ namespace ClinicManagementSys.Repository
         #region 7-delete login
         public JsonResult Deletelogin(int id);
         #endregion
-
+        public Task<ActionResult<IEnumerable<LoginRegistration>>> GetTblDepartments();
+        public Task<ActionResult<IEnumerable<Role>>> GetTblDepartmentss();
     }
 }

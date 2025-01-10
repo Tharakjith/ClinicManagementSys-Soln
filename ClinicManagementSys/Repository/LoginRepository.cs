@@ -19,7 +19,7 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    LoginRegistration dbUser = await _context.LoginRegistrations.FirstOrDefaultAsync(
+                    LoginRegistration? dbUser = await _context.LoginRegistrations.FirstOrDefaultAsync(
                         u => u.Username == username && u.Password == password);
 
                     if (dbUser != null)
