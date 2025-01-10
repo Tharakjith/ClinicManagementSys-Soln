@@ -254,7 +254,7 @@ namespace ClinicManagementSys.Repository
                         .Include(a => a.Patient)
                         .Include(a => a.Specialization)
                         .Include(a => a.Doctor)
-                        .Include(a => a.DailyAvailability)
+                        .Include(a => a.Availability)
                         .Include(a => a.AppointmentStatus)
                         .ToListAsync();
                 }
@@ -401,17 +401,19 @@ namespace ClinicManagementSys.Repository
         #region   Get Daily Availability of a Doctor
         public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
         {
+            
             try
             {
                 if (_context != null)
                 {
+                    return null;
                     // Fetching DailyAvailability by DoctorId and AvailableDate
-                    var dailyAvailabilities = await _context.DailyAvailabilities
-                        .Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
-                        .Include(d => d.Availability.Doctor)
-                        .ToListAsync();
+                    //var dailyAvailabilities = await _context.DailyAvailabilities
+                        //.Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
+                        //.Include(d => d.Availability.Doctor)
+                        //.ToListAsync();
 
-                    return dailyAvailabilities;
+                   // return dailyAvailabilities;
                 }
                 return new List<DailyAvailability>();
             }
@@ -419,8 +421,10 @@ namespace ClinicManagementSys.Repository
             {
                 throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
             }
+           
         }
         #endregion
+
 
         #region 5 - Get Doctor's Daily Availability by Doctor ID and Date
         public async Task<Weekday> GetWeekdayByName(string dayName)

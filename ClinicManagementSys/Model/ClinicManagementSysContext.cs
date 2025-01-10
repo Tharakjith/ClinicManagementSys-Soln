@@ -71,9 +71,9 @@ public partial class ClinicManagementSysContext : DbContext
 
     public virtual DbSet<Weekday> Weekdays { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source =LAPTOP-1D8H5N1A\\SQLEXPRESS; Initial Catalog = ClinicManagementSys; Integrated Security = True; Trusted_Connection=True;TrustServerCertificate=True");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Data Source =LAPTOP-1D8H5N1A\\SQLEXPRESS; Initial Catalog = ClinicManagementSys; Integrated Security = True; Trusted_Connection=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -598,7 +598,7 @@ public partial class ClinicManagementSysContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.TestPrescriptions)
+            entity.HasOne(d => d.Appointments).WithMany(p => p.TestPrescriptions)
                 .HasForeignKey(d => d.AppointmentId)
                 .HasConstraintName("FK__TestPresc__Appoi__73BA3083");
 

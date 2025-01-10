@@ -1,93 +1,70 @@
 ﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static ClinicManagementSys.Repository.ILabTestRepository;
 using static ClinicManagementSys.Repository.LabTestRepository;
 
 namespace ClinicManagementSys.Repository
 {
-    public class LabTestRepository: ILabTestRepository
+    public class LabTestRepository : ILabTestRepository
     {
 
-        private readonly ClinicManagementSysContext _context;
+        //private readonly ClinicManagementSysContext _context;
 
-        public LabTestRepository(ClinicManagementSysContext context)
-        {
-            _context = context;
-        }
-        #region 1 -  Get all Medicine from DB 
-        public async Task<ActionResult<IEnumerable<TestPrescription>>> GetMedicineDetail()
-        {
-            try
-            {
-                if (_context != null)
-                {
-                    return await _context.TestPrescriptions.ToListAsync();
-                }
-                //Returns an empty list if context is null
-                return new List<TestPrescription>();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        #endregion
-        #region   2 - Get an Patient based on Id
-        public async Task<ActionResult<TestPrescription>> GetMedicineDetailById(int id)
-        {
-            try
-            {
-                if (_context != null)
-                {
-                    var patient = await _context.TestPrescriptions.FirstOrDefaultAsync(p => p.TpId == id);
-                    return patient;
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        #endregion
-        #region  4  - Update/Edit an Prescription with ID
-        public async Task<ActionResult<LabTestReport>> PutMedicineDetail(int id, TestPrescription patient)
-        {
-            try
-            {
-                if (patient == null)
-                {
-                    throw new InvalidOperationException("Database context is not initialized");
-                }
-                //Find the patient by id
-                var existingMedicineDetail = await _context.TestPrescriptions.FindAsync(id);
-                if (existingMedicineDetail == null)
-                {
-                    return null;
-                }
+        //public LabTestRepository(ClinicManagementSysContext context)
+        //{
+        //    _context = context;
+        //}
+        //public async Task<IEnumerable<LabTestReportViewModel>> GetAllLabTestReportsAsync()
+        //{
+        //    return await _context.TestPrescriptions
+        //        .Select(report => new LabTestReportViewModel
+        //        {
+        //            TpId = report.TpId,
+        //            AppointmentId = report.AppointmentId ?? 0,
+        //           // PatientId = report.PatientId ?? 0,
+        //            LabTestId = report.LabTestId ?? 0,
+        //            TestName = report.LabTest.TestName,
+        //            HighRange = report.LabTest.LabTestReports.FirstOrDefault().HighRange ?? 0,
+        //            LowRange = report.LabTest.LabTestReports.FirstOrDefault().LowRange ?? 0,
+        //            ActualResult = report.LabTest.LabTestReports.FirstOrDefault().ActualResult ?? 0,
+        //            Remarks = report.LabTest.LabTestReports.FirstOrDefault().Remarks
+        //        }).ToListAsync();
+        //}
 
-                //Map values wit fields
-                existingMedicineDetail.AppointmentId = patient.AppointmentId;
-                existingMedicineDetail.TpId = patient.TpId;
+        //public async Task<LabTestReportViewModel> GetLabTestReportByIdAsync(int id)
+        //{
+        //    return await _context.LabTestReports
+        //        .Where(report => report.LtreportId == id)
+        //        .Select(report => new LabTestReportViewModel
+        //        {
+        //            TpId = report.LtreportId,
+        //            AppointmentId = report.AppointmentId,
+        //            PatientId = report.Appointment.PatientId,
+        //            LabTestId = report.LabTestId,
+        //            TestName = report.LabTest.TestName,
+        //            HighRange = report.HighRange ?? 0,
+        //            LowRange = report.LowRange ?? 0,
+        //            ActualResult = report.ActualResult ?? 0,
+        //            Remarks = report.Remarks
+        //        }).FirstOrDefaultAsync();
+        //}
 
-                //save changes to the database
-                await _context.SaveChangesAsync();
+        //public async Task<bool> UpdateLabTestReportAsync(int id, LabTestReportViewModel model)
+        //{
+        //    var report = await _context.LabTestReports.FindAsync(id);
+        //    if (report == null) return false;
 
-                //Retreive the patient 
-                var updateMedicineDetail = await _context.LabTestReports
-                 //  .FirstOrDefaultAsync(existingMedicineDetail => existingMedicineDetail.PrescriptionId == Prescription.PrescriptionId);
-                 .FirstOrDefaultAsync(existingPatient => existingMedicineDetail.TpId == patient.TpId);
+        //    report.HighRange = model.HighRange;
+        //    report.LowRange = model.LowRange;
+        //    report.ActualResult = model.ActualResult;
+        //    report.Remarks = model.Remarks;
 
-                //Return the added Patient record
-                return updateMedicineDetail;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        #endregion
-
+        //    _context.LabTestReports.Update(report);
+        //    await _context.SaveChangesAsync();
+        //    return true;
+        //}
 
     }
 

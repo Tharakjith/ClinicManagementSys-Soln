@@ -63,6 +63,18 @@ namespace ClinicManagementSys.Controllers
             return BadRequest();
         }
         #endregion
+        #region 3 -  Get all doctors from DB 
+        [HttpGet("Doctors")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetAllDoctors()
+        {
+            var doctors = await _repository.GetDoctors();
+            if (doctors == null)
+            {
+                return NotFound("No Doctors found");
+            }
+            return Ok(doctors);
+        }
+        #endregion
 
         #region    4 - Update/Edit an Patient with ID
         [HttpPut("{id}")]

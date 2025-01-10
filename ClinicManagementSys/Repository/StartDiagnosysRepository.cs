@@ -86,6 +86,25 @@ namespace ClinicManagementSys.Repository
             }
         }
         #endregion
+        #region 3 -  Get all doctors from DB 
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Doctors.Include(e => e.Specialization).Include(e => e.Registration)
+                        .ToListAsync();
+                }
+                //Returns an empty list if context is null
+                return new List<Doctor>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching doctors: {ex.Message}");
+            }
+        }
+        #endregion
 
         #region  4  - Update/Edit an Prescription with ID
         public async Task<ActionResult<StartDiagnosy>> PutStartDiagnosy(int id, StartDiagnosy patient)
