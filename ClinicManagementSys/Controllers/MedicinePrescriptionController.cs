@@ -30,20 +30,24 @@ namespace ClinicManagementSys.Controllers
             return Ok(patients);
         }
         #endregion
-
-        #region 2 - Get an Patient based on Id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Prescription>> GetAllMedicineDetailById(int id)
+        #region  3 
+        [HttpGet("GetMN")]
+        public async Task<IActionResult> GetMedicineNamesAsync()
         {
-            var patient = await _repository.GetMedicineDetailById(id);
-            if (patient == null)
+            try
             {
-                return NotFound("Oops! No Patient found on this Id");
+                // Retrieve medicine names from the repository
+                var medicineNames = await _repository.GetMedicineNamesAsync();
+
+                return Ok(medicineNames); // Return 200 OK with data
             }
-            return Ok(patient);
+            catch (Exception ex)
+            {
+                // Handle and log the exception (logging can be added here)
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
         #endregion
-
         #region  3  - Insert an Patient -return Patient record
         [HttpPost]
         public async Task<ActionResult<Prescription>> InsertMedicineDetailReturnRecord(Prescription patient)

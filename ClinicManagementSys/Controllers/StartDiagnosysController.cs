@@ -44,6 +44,7 @@ namespace ClinicManagementSys.Controllers
         #endregion
 
         #region  3  - Insert an Patient -return Patient record
+
         [HttpPost]
         public async Task<ActionResult<StartDiagnosy>> InsertStartDiagnosyReturnRecord(StartDiagnosy patient)
         {
@@ -64,15 +65,16 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
         #region 3 -  Get all doctors from DB 
-        [HttpGet("Doctors")]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetAllDoctors()
+       
+        [HttpGet("DoctorNames")]
+        public async Task<IActionResult> GetDoctorNames()
         {
-            var doctors = await _repository.GetDoctors();
-            if (doctors == null)
+            var doctorNames = await _repository.GetDoctorNamesAsync();
+            if (doctorNames == null || !doctorNames.Any())
             {
-                return NotFound("No Doctors found");
+                return NotFound("No doctors found.");
             }
-            return Ok(doctors);
+            return Ok(doctorNames);
         }
         #endregion
 

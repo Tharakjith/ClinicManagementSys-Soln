@@ -74,7 +74,7 @@ namespace ClinicManagementSys.Repository
                 await _context.SaveChangesAsync();
 
                 //Retrieve the Patient detail
-                var newpatient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.HistoryId == patient.HistoryId);
+                var newpatient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.AppointmentId == patient.AppointmentId);
 
                 //Return the added Patient with the record added
                 return newpatient;
@@ -86,24 +86,31 @@ namespace ClinicManagementSys.Repository
             }
         }
         #endregion
-        #region 3 -  Get all doctors from DB 
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        #region 3 -  Get all doctors  name from DB 
+        public async Task<List<Object>> GetDoctorNamesAsync()
         {
-            try
+            if (_context == null)
             {
-                if (_context != null)
-                {
-                    return await _context.Doctors.Include(e => e.Specialization).Include(e => e.Registration)
-                        .ToListAsync();
-                }
-                //Returns an empty list if context is null
-                return new List<Doctor>();
+                throw new InvalidOperationException("Database context is null.");
             }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Error fetching doctors: {ex.Message}");
-            }
+
+            // LINQ Query to Retrieve DoctorId and StaffName
+            var doctorNames = await (from doctor in _context.Doctors
+                                     join login in _context.LoginRegistrations
+                                         on doctor.RegistrationId equals login.RegistrationId
+                                     join staff in _context.Staff
+                                         on login.StaffId equals staff.StaffId
+                                    // where doctor.DoctorIsActive // Filter for active doctors
+                                     select new
+                                     {
+                                         DoctorId = doctor.DoctorId,
+                                         DoctorName = staff.StaffName
+                                     }).ToListAsync();
+
+            return doctorNames.Cast<Object>().ToList();
         }
+
+
         #endregion
 
         #region  4  - Update/Edit an Prescription with ID

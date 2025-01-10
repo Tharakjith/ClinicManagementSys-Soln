@@ -18,7 +18,7 @@ namespace ClinicManagementSys.Repository
         public Task<ActionResult<StartDiagnosy>> PostStartDiagnosyReturnRecord(StartDiagnosy patient);
         #endregion
         #region 3 -  Get all doctors from DB 
-        public Task<ActionResult<IEnumerable<Doctor>>> GetDoctors();
+        public Task<List<Object>> GetDoctorNamesAsync();
         #endregion
 
         #region  4  - Update/Edit an Patient with ID
