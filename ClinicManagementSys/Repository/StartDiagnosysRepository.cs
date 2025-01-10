@@ -74,7 +74,7 @@ namespace ClinicManagementSys.Repository
                 await _context.SaveChangesAsync();
 
                 //Retrieve the Patient detail
-                var newpatient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.HistoryId == patient.HistoryId);
+                var newpatient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.AppointmentId == patient.AppointmentId);
 
                 //Return the added Patient with the record added
                 return newpatient;
@@ -85,6 +85,32 @@ namespace ClinicManagementSys.Repository
                 return null;
             }
         }
+        #endregion
+        #region 3 -  Get all doctors  name from DB 
+        public async Task<List<Object>> GetDoctorNamesAsync()
+        {
+            if (_context == null)
+            {
+                throw new InvalidOperationException("Database context is null.");
+            }
+
+            // LINQ Query to Retrieve DoctorId and StaffName
+            var doctorNames = await (from doctor in _context.Doctors
+                                     join login in _context.LoginRegistrations
+                                         on doctor.RegistrationId equals login.RegistrationId
+                                     join staff in _context.Staff
+                                         on login.StaffId equals staff.StaffId
+                                    // where doctor.DoctorIsActive // Filter for active doctors
+                                     select new
+                                     {
+                                         DoctorId = doctor.DoctorId,
+                                         DoctorName = staff.StaffName
+                                     }).ToListAsync();
+
+            return doctorNames.Cast<Object>().ToList();
+        }
+
+
         #endregion
 
         #region  4  - Update/Edit an Prescription with ID

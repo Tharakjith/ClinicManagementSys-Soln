@@ -315,28 +315,34 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region   Get Daily Availability of a Doctor
-        //public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
-        //{
-        //    try
-        //    {
-        //        if (_context != null)
-        //        {
-        //            // Fetching DailyAvailability by DoctorId and AvailableDate
-        //            var dailyAvailabilities = await _context.DailyAvailabilities
-        //                .Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
-        //                .Include(d => d.Availability.Doctor)
-        //                .ToListAsync();
 
-        //            return dailyAvailabilities;
-        //        }
-        //        return new List<DailyAvailability>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
-        //    }
-        //}
+        public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
+        {
+            
+            try
+            {
+                if (_context != null)
+                {
+                    return null;
+                    // Fetching DailyAvailability by DoctorId and AvailableDate
+                    //var dailyAvailabilities = await _context.DailyAvailabilities
+                        //.Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
+                        //.Include(d => d.Availability.Doctor)
+                        //.ToListAsync();
+
+                   // return dailyAvailabilities;
+                }
+                return new List<DailyAvailability>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
+            }
+           
+        }
+
         #endregion
+
 
         #region 5 - Get Doctor's Daily Availability by Doctor ID and Date
         public async Task<Weekday> GetWeekdayByName(string dayName)
@@ -374,7 +380,7 @@ namespace ClinicManagementSys.Repository
                         .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekday.WeekdaysId)
                         .Include(a => a.TimeSlot) // Include timeslot details
                         .ToListAsync();
-=======
+
                     var doctors = await _context.Doctors
                         .Where(d => d.SpecializationId == specializationId && d.DoctorIsActive == true)
                         .Include(d => d.Registration) // Includes the LoginRegistration

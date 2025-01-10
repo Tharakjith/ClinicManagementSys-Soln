@@ -10,7 +10,7 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region   2 - Get an Patient based on Id
-        public Task<ActionResult<Prescription>> GetMedicineDetailById(int id);
+        public  Task<List<object>> GetMedicineNamesAsync();
         #endregion
 
         #region  3  - Insert an Patient -return Patient record

@@ -17,6 +17,9 @@ namespace ClinicManagementSys.Repository
         #region  3  - Insert an Patient -return Patient record
         public Task<ActionResult<StartDiagnosy>> PostStartDiagnosyReturnRecord(StartDiagnosy patient);
         #endregion
+        #region 3 -  Get all doctors from DB 
+        public Task<List<Object>> GetDoctorNamesAsync();
+        #endregion
 
         #region  4  - Update/Edit an Patient with ID
         public Task<ActionResult<StartDiagnosy>> PutStartDiagnosy(int id, StartDiagnosy patient);
