@@ -1,67 +1,53 @@
-﻿using ClinicManagementSys.Model;
-using ClinicManagementSys.Repository;
-using Microsoft.AspNetCore.Mvc;
+﻿//using ClinicManagementSys.Model;
+//using ClinicManagementSys.Repository;
+//using ClinicManagementSys.ViewModel;
+//using Microsoft.AspNetCore.Mvc;
 
-namespace ClinicManagementSys.Controllers
-{
+//namespace ClinicManagementSys.Controllers
+//{
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class LabtestPrescriptionsController : Controller
-    {
+//    [ApiController]
+//    [Route("api/[controller]")]
+//    public class LabtestPrescriptionsController : Controller
+//    {
 
-        private readonly ILabTestRepository _repository;
+//        private readonly ILabTestRepository _repository;
 
-        public LabtestPrescriptionsController(ILabTestRepository repository)
-        {
-            _repository = repository;
-        }
+//        public LabtestPrescriptionsController(ILabTestRepository repository)
+//        {
+//            _repository = repository;
+//        }
+
+//        [HttpGet]
+//        public async Task<ActionResult<IEnumerable<LabTestReportViewModel>>> GetAllLabTestReports()
+//        {
+//            var reports = await _repository.GetAllLabTestReportsAsync();
+//            return Ok(reports);
+//        }
+
+//        // Get a lab test report by ID
+//        [HttpGet("{id}")]
+//        public async Task<ActionResult<LabTestReportViewModel>> GetLabTestReportById(int id)
+//        {
+//            var report = await _repository.GetLabTestReportByIdAsync(id);
+//            if (report == null) return NotFound();
+
+//            return Ok(report);
+//        }
+
+//        // Update a lab test report
+//        [HttpPut("{id}")]
+//        public async Task<IActionResult> UpdateLabTestReport(int id, LabTestReportViewModel model)
+//        {
+//            if (id != model.TpId) return BadRequest("Report ID mismatch");
+
+//            var updated = await _repository.UpdateLabTestReportAsync(id, model);
+//            if (!updated) return NotFound();
+
+//            return NoContent();
 
 
-        #region  1 -  Get all patients from DB 
-        [HttpGet]
-        // [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<IEnumerable<TestPrescription>>> GetAllMedicineDetail()
-        {
-            var patients = await _repository.GetMedicineDetail();
-            if (patients == null)
-            {
-                return NotFound("No Patients found");
-            }
-            return Ok(patients);
-        }
-        #endregion
-        #region 2 - Get an Patient based on Id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TestPrescription>> GetAllMedicineDetailById(int id)
-        {
-            var patient = await _repository.GetMedicineDetailById(id);
-            if (patient == null)
-            {
-                return NotFound("Oops! No Patient found on this Id");
-            }
-            return Ok(patient);
-        }
-        #endregion
-        #region    4 - Update/Edit an Patient with ID
-        [HttpPut("{id}")]
-        public async Task<ActionResult<LabTestReport>> PutMedicineDetailDetail(int id, TestPrescription patient)
-        {
-            if (ModelState.IsValid)
-            {
-                var updatePatient = await _repository.PutMedicineDetail(id, patient);
-                if (updatePatient != null)
-                {
-                    return Ok(updatePatient);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            return BadRequest();
-        }
-        #endregion
+
 
 
     }

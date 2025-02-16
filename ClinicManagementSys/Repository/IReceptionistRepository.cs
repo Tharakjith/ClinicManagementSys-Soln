@@ -50,6 +50,7 @@ namespace ClinicManagementSys.Repository
 
         #region  4 - Get all Doctors based on Specialization
         public Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId);
+
         #endregion
 
         #region 5 - Get Consultation Fee by Doctor ID
