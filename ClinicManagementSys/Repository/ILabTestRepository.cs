@@ -1,4 +1,5 @@
 ﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicManagementSys.Repository
@@ -17,7 +18,7 @@ namespace ClinicManagementSys.Repository
         public Task<ActionResult<LabTestReport>> PutMedicineDetail(int id, TestPrescription patient);
         #endregion
 
-
+       
 
     }
 }

@@ -9,8 +9,9 @@ namespace ClinicManagementSys.Repository
         public Task<ActionResult<IEnumerable<Prescription>>> GetMedicineDetail();
         #endregion
 
-        #region   2 - Get an Patient based on Id
-        public Task<ActionResult<Prescription>> GetMedicineDetailById(int id);
+        #region   2 - Get all medicine name
+        public Task<ActionResult<IEnumerable<MedicineDetail>>> GetMedicineName();
+
         #endregion
 
         #region  3  - Insert an Patient -return Patient record

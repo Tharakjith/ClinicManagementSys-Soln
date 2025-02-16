@@ -1,6 +1,7 @@
 ﻿using ClinicManagementSys.Model;
 using ClinicManagementSys.Repository;
 using ClinicManagementSys.ViewModel;
+using ClinicManagementSys.ViewModel.ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
@@ -86,7 +87,7 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
 
-        #region 7 - Delete an Employee
+        #region 7 - Delete doctor
         [HttpDelete("{id}")]
         public IActionResult Deletedoctor(int id)
         {
@@ -160,5 +161,255 @@ namespace ClinicManagementSys.Controllers
             return Ok(result);
         }
 
+        [HttpPost]
+        public async Task<ActionResult<Doctor>> InsertTblEmployeesReturnRecord(Doctor employee)
+        {
+            if (ModelState.IsValid)
+            {
+                var newEmployee = await _repository.postTblEmployeesReturnRecord(employee);
+                if (newEmployee != null)
+                {
+                    return Ok(newEmployee);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            return BadRequest();
+
+        }
+        #region 8 Get All Departments
+        [HttpGet("v2")]
+        public async Task<ActionResult<IEnumerable<Specialization>>> GetAllDepartments()
+        {
+            var departments = await _repository.GetTblDepartments();
+            if (departments == null)
+            {
+                return NotFound("No Specialization found");
+            }
+
+            return Ok(departments);
+        }
+        #endregion
+        #region 8 Get All Departments
+        [HttpGet("v5")]
+        public async Task<ActionResult<IEnumerable<LoginRegistration>>> GetTblAllUsers()
+        {
+            var departments = await _repository.GetTblUsers();
+            if (departments == null)
+            {
+                return NotFound("No Specialization found");
+            }
+
+            return Ok(departments);
+        }
+        #endregion
+        #region 8 Get All Departments
+        [HttpGet("v6")]
+        public async Task<ActionResult<IEnumerable<Staff>>> GetTblstaffs()
+        {
+            var departments = await _repository.GetTblstaffs();
+            if (departments == null)
+            {
+                return NotFound("No Specialization found");
+            }
+
+            return Ok(departments);
+        }
+        #endregion
+        [HttpPost("register")]
+        public IActionResult RegisterDoctor([FromBody] doctorlistnew model)
+        {
+            if (model == null)
+            {
+                return BadRequest(new { message = "Doctor model is null." });
+            }
+
+            // Call the RegisterDoctor method from the service
+            bool isRegistered = _repository.RegisterDoctor(model);
+
+            if (isRegistered)
+            {
+                // Return JSON output with detailed information
+                return Ok(new
+                {
+                    status = 200,
+                    message = "Doctor registered successfully.",
+                    doctorDetails = model // Include relevant details from the model
+                });
+            }
+            else
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "Staff or Registration not found, or Doctor role is not valid."
+                });
+            }
+        }
+
+        #region 8 Get All Departments
+        [HttpGet("v8")]
+        public async Task<ActionResult<object>> listalltimeslotsrtments()
+        {
+            var timeslots = await _repository.listalltimeslotsrtments();
+            if (timeslots == null)
+            {
+                return NotFound(new { Message = "No timeslots found" });
+            }
+
+            var response = new
+            {
+                Value = timeslots
+            };
+
+            return Ok(response);
+        }
+
+        #endregion
+        #region 8 Get All Departments
+        [HttpGet("v7")]
+        public async Task<ActionResult<IEnumerable<Weekday>>> listallweekdays()
+        {
+            var departments = await _repository.listallweekdays();
+            if (departments == null)
+            {
+                return NotFound("No Specialization found");
+            }
+
+            return Ok(departments);
+        }
+        #endregion
+
+
+        //AVAILABILITY
+
+        //[HttpPost("insertAvailability/{doctorId}")]
+        //public async Task<ActionResult<Availability>> InsertAvailability(int doctorId, [FromBody] Availability availability)
+        //{
+        //    try
+        //    {
+        //        // Validate input
+        //        if (!ModelState.IsValid)
+        //        {
+        //            return BadRequest(ModelState);
+        //        }
+
+        //        // Validate Doctor
+        //        var doctor = await _repository.GetDoctorByIdAsync(doctorId);
+        //        if (doctor == null)
+        //        {
+        //            return NotFound(new { Message = "Doctor not found." });
+        //        }
+
+        //        // Validate Timeslot
+        //        if (availability.TimeSlotId == null)
+        //        {
+        //            return BadRequest(new { Message = "TimeSlotId is required." });
+        //        }
+
+        //        var timeslot = await _repository.GetTimeslotByIdAsync(availability.TimeSlotId.Value);
+        //        if (timeslot == null)
+        //        {
+        //            return NotFound(new { Message = "Timeslot not found." });
+        //        }
+
+        //        // Validate Session
+        //        if (string.IsNullOrEmpty(availability.Session))
+        //        {
+        //            return BadRequest(new { Message = "Session is required." });
+        //        }
+
+        //        // Set the DoctorId in Availability
+        //        availability.DoctorId = doctorId;
+
+        //        // Insert Availability
+        //        var isInserted = await _repository.InsertAvailabilityAsync(availability);
+        //        if (!isInserted)
+        //        {
+        //            return StatusCode(500, new { Message = "Failed to insert availability." });
+        //        }
+
+        //        // Return the inserted Availability object
+        //        return CreatedAtAction(
+        //            nameof(InsertAvailability),
+        //            new { doctorId = doctorId, id = availability.AvailabilityId },
+        //            availability
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { Message = $"An unexpected error occurred: {ex.Message}" });
+        //    }
+        //}
+
+
+        [HttpPost("doctor/{doctorId}")]
+        public async Task<IActionResult> AddAvailability(int doctorId, [FromBody] Availability availability)
+        {
+            try
+            {
+                if (doctorId != availability.DoctorId)
+                {
+                    return BadRequest("Doctor ID mismatch");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _repository.AddAvailability(availability);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("timeslots")]
+        public async Task<IActionResult> GetAllTimeslots()
+        {
+            try
+            {
+                var timeslots = await _repository.GetAllTimeslots();
+                if (timeslots == null)
+                {
+                    return NotFound();
+                }
+                return Ok(timeslots);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("timeslot/{timeSlotId}")]
+        public async Task<IActionResult> GetTimeSlotDetails(int timeSlotId)
+        {
+            try
+            {
+                var timeSlot = await _repository.GetTimeSlotDetails(timeSlotId);
+                if (timeSlot == null)
+                {
+                    return NotFound();
+                }
+                return Ok(new
+                {
+                    TimeSlotId = timeSlot.TimeSlotId,
+                    StartTime = timeSlot.StartTime,
+                    EndTime = timeSlot.EndTime,
+                    WeekdayName = timeSlot.Weekdays?.WeekdaysName
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

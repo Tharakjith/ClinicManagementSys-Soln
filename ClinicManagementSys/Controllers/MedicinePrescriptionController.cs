@@ -30,22 +30,39 @@ namespace ClinicManagementSys.Controllers
             return Ok(patients);
         }
         #endregion
+        #region  3 
+        // [HttpGet("GetMN")]
+        /*  public async Task<IActionResult> GetMedicineNamesAsync()
+          {
+              try
+              {
+                  // Retrieve medicine names from the repository
+                  var medicineNames = await _repository.GetMedicineNamesAsync();
 
-        #region 2 - Get an Patient based on Id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Prescription>> GetAllMedicineDetailById(int id)
+                  return Ok(medicineNames); // Return 200 OK with data
+              }
+              catch (Exception ex)
+              {
+                  // Handle and log the exception (logging can be added here)
+                  return StatusCode(500, $"An error occurred: {ex.Message}");
+              }
+          }*/
+
+        [HttpGet("v7")]
+        public async Task<ActionResult<IEnumerable<MedicineDetail>>> GetAllMedicineName()
         {
-            var patient = await _repository.GetMedicineDetailById(id);
-            if (patient == null)
+            var departments = await _repository.GetMedicineName();
+            if (departments == null)
             {
-                return NotFound("Oops! No Patient found on this Id");
+                return NotFound("No medicine found");
             }
-            return Ok(patient);
+
+            return Ok(departments);
         }
         #endregion
 
         #region  3  - Insert an Patient -return Patient record
-        [HttpPost]
+        [HttpPost("AM")]
         public async Task<ActionResult<Prescription>> InsertMedicineDetailReturnRecord(Prescription patient)
         {
             if (ModelState.IsValid)

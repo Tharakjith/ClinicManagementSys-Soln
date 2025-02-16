@@ -10,137 +10,134 @@ namespace ClinicManagementSys.Controllers
     [ApiController]
     public class LabtestListsController : ControllerBase
     {
-        //Call repository
-        private readonly ILabtestListRepository _repository;
+        ////Call repository
+        //private readonly ILabtestListRepository _repository;
 
-        //DI Constructor Injection
-        public LabtestListsController(ILabtestListRepository repository)
-        {
-            _repository = repository;
-        }
+        ////DI Constructor Injection
+        //public LabtestListsController(ILabtestListRepository repository)
+        //{
+        //    _repository = repository;
+        //}
 
 
-        #region 1- get all labtests-search all
-        [HttpGet("vm")]
-        public async Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetAllLabtestByViewModel()
-        {
-            var labtests = await _repository.GetViewModelLabtestList();
-            if (labtests == null)
-            {
-                return NotFound("No Labtests found");
-            }
+        //#region 1- get all labtests-search all
+        //[HttpGet("vm")]
+        //public async Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetAllLabtestByViewModel()
+        //{
+        //    var labtests = await _repository.GetViewModelLabtestList();
+        //    if (labtests == null || !labtests.Value.Any())
+        //    {
+        //        return NotFound("No Labtests found for today's appointments.");
+        //    }
 
-            return Ok(labtests);
-        }
+        //    return Ok(labtests);
+        //}
 
-        #endregion
+        //#endregion
 
-        #region 2- get all labtests-search by id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AppPatStaLabViewModel>> GetLabtestById(int tokenNumber)
-        {
-            var labtests = await _repository.GetLabtestById(tokenNumber);
-            if (labtests == null)
-            {
-                return NotFound("No Labtests found");
-            }
+        //#region 2- get all labtests-search by id
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<AppPatStaLabViewModel>> GetLabtestById(int tokenNumber)
+        //{
+        //    var labtests = await _repository.GetLabtestById(tokenNumber);
+        //    if (labtests == null)
+        //    {
+        //        return NotFound("No Labtests found");
+        //    }
 
-            return Ok(labtests);
-        }
+        //    return Ok(labtests);
+        //}
 
-        #endregion
+        //#endregion
 
-        #region 3- get all employees-search all
-        [HttpGet("vm1")]
-        public async Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetAllLabtestBillByViewModel()
-        {
-            var labtests = await _repository.GetViewModelLabtestBill();
-            if (labtests == null)
-            {
-                return NotFound("No Labtest Bill found");
-            }
+        //#region 3- get all labtest bill-search all
+        //[HttpGet("vm1")]
+        //public async Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetAllLabtestBillByViewModel()
+        //{
+        //    var labtests = await _repository.GetViewModelLabtestBill();
+        //    if (labtests == null)
+        //    {
+        //        return NotFound("No Labtest Bill found");
+        //    }
 
-            return Ok(labtests);
-        }
+        //    return Ok(labtests);
+        //}
 
-        #endregion
+        //#endregion
 
-        //#region 6 - Update Employee - Return  EmployeeRecord
+        //#region 4 -  get labtest report
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<LabTestReportViewModel>>> GetAllLabTestReports()
+
+        //{
+        //    var reports = await _repository.GetAllLabTestReportsAsync();
+        //    return Ok(reports);
+        //}
+        //#endregion
+        //#region 5 - Get a lab test report by ID
+        //[HttpGet("GetLabTestReportById/{id}")]
+        //public async Task<ActionResult<LabTestReportViewModel>> GetLabTestReportById(int id)
+        //{
+        //    var report = await _repository.GetLabTestReportByIdAsync(id);
+        //    if (report == null) return NotFound();
+
+        //    return Ok(report);
+        //}
+        //#endregion
+        //#region 6 - Update a lab test report
         //[HttpPut("{id}")]
-
-        //public async Task<ActionResult<TblEmployee>> UpdatePutTblEmployee(int id, TblEmployee employee)
+        //public async Task<IActionResult> UpdateLabTestReport(int id, LabTestReportViewModel model)
         //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //insert a new record and return as an object named employee
-        //        var updateEmployee = await _repository.PutTblEmployee(id, employee);
-        //        if (updateEmployee != null)
-        //        {
-        //            return Ok(updateEmployee);
-        //        }
-        //        else
-        //        {
-        //            return NotFound();
-        //        }
-        //    }
-        //    return BadRequest();
+        //    if (id != model.TpId) return BadRequest("Report ID mismatch");
 
+        //    var updated = await _repository.UpdateLabTestReportAsync(id, model);
+        //    if (!updated) return NotFound();
+
+        //    return NoContent();
+
+        //}
+        //#endregion
+
+        //#region 7 - GetLabTestsForToday - Ahalya lab test
+
+        //[HttpGet("GetLabTestsForToday")]
+        //public async Task<IActionResult> GetLabTestsForToday()
+        //{
+        //    try
+        //    {
+        //        var labTests = await _repository.GetLabTestsForTodayAsync();
+
+        //        if (labTests == null || !labTests.Any())
+        //        {
+        //            return NotFound(new { success = false, message = "No lab tests found for today." });
+        //        }
+
+        //        return Ok(new { success = true, data = labTests });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { success = false, message = ex.Message });
+        //    }
         //}
 
         //#endregion
 
-        //#region 4 -  Insert an Employee - Return Employee Record
-        //[HttpPost]
-        //public async Task<ActionResult<TblEmployee>> InsertPostTblEmployeesReturnRecord(TblEmployee employee)
+        //#region 8 - get all labtest
+
+        //[HttpGet("today-prescribed-tests")]
+        //public async Task<ActionResult<List<AppPatStaLabViewModel>>> GetTodaysPrescribedTests()
         //{
-        //    if (ModelState.IsValid)
+        //    try
         //    {
-        //        //insert a new record and return as an object named employee
-        //        var newEmployee = await _repository.PostTblEmployeesReturnRecord(employee);
-        //        if (newEmployee != null)
-        //        {
-        //            return Ok(newEmployee);
-        //        }
-        //        else
-        //        {
-        //            return NotFound();
-        //        }
+        //        var tests = await _repository.GetTodaysPrescribedLabTests();
+        //        return Ok(tests);
         //    }
-        //    return BadRequest();
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "Internal server error: " + ex.Message);
+        //    }
         //}
+
         //#endregion
-
-
-        ////// GET: api/<LabtestListsController>
-        ////[HttpGet]
-        ////public IEnumerable<string> Get()
-        ////{
-        ////    return new string[] { "value1", "value2" };
-        ////}
-
-        ////// GET api/<LabtestListsController>/5
-        ////[HttpGet("{id}")]
-        ////public string Get(int id)
-        ////{
-        ////    return "value";
-        ////}
-
-        ////// POST api/<LabtestListsController>
-        ////[HttpPost]
-        ////public void Post([FromBody] string value)
-        ////{
-        ////}
-
-        ////// PUT api/<LabtestListsController>/5
-        ////[HttpPut("{id}")]
-        ////public void Put(int id, [FromBody] string value)
-        ////{
-        ////}
-
-        ////// DELETE api/<LabtestListsController>/5
-        ////[HttpDelete("{id}")]
-        ////public void Delete(int id)
-        ////{
-        ////}
     }
 }

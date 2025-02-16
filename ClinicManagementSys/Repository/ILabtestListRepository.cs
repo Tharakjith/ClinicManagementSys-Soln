@@ -5,19 +5,26 @@ namespace ClinicManagementSys.Repository
 {
     public interface ILabtestListRepository
     {
-        //1- Get All Employees using ViewModel;
-        public Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetViewModelLabtestList();
+       // //1- Get All Employees using ViewModel;
+       // public Task<ActionResult<IEnumerable<AppPatStaLabViewModel>>> GetViewModelLabtestList();
 
-        //2 -Get an Employee based on Id
-        public Task<AppPatStaLabViewModel> GetLabtestById(int tokenNumber);
+       // //2 -Get an Employee based on Id
+       // public Task<AppPatStaLabViewModel> GetLabtestById(int tokenNumber);
 
-        //3- Get All Employees using ViewModel;
-        public Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetViewModelLabtestBill();
+       // //3- Get All Employees using ViewModel;
+       // public Task<ActionResult<IEnumerable<LabtestBillViewModel>>> GetViewModelLabtestBill();
 
-        ////4 - Update an Employee with ID and employee
-        //public Task<ActionResult<TblEmployee>> PutTblEmployee(int id, TblEmployee tblEmployee);
+       // public Task<IEnumerable<LabTestReportViewModel>> GetAllLabTestReportsAsync();
+       // public Task<LabTestReportViewModel> GetLabTestReportByIdAsync(int id);
+       // public Task<bool> UpdateLabTestReportAsync(int id, LabTestReportViewModel model);
 
-        ////5 - Insert an employee - RetuRN Employee Record
-        //public Task<ActionResult<TblEmployee>> PostTblEmployeesReturnRecord(TblEmployee tblEmployee);
+       // public Task<List<AppPatStaLabViewModel>> GetViewModelLabtestsList();
+
+       // //Ahalya lab test
+       // public Task<IEnumerable<LabAppViewModel>> GetLabTestsForTodayAsync();
+
+
+
+       //public Task<List<AppPatStaLabViewModel>> GetTodaysPrescribedLabTests();
     }
 }

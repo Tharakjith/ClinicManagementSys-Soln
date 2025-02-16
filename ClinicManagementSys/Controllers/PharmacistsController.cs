@@ -1,6 +1,7 @@
 ﻿using ClinicManagementSys.Model;
 using ClinicManagementSys.Repository;
 using ClinicManagementSys.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicManagementSys.Controllers
@@ -21,6 +22,7 @@ namespace ClinicManagementSys.Controllers
         #region 1- get all Medicine-search all
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MedicineDetail>>> GetAllMedicines()
+
         {
             var medicines = await _repository.GetTblMedicines();
             if (medicines == null)
@@ -135,16 +137,17 @@ namespace ClinicManagementSys.Controllers
 
         #endregion
         #region 7 - get all Prescription Bill-search all
-        [HttpGet("vm2")]
-        public async Task<ActionResult<IEnumerable<PrescriptionBillViewModel>>> GetAllMedicineBillByViewModel()
+        [HttpGet("GetBillDetails/{prescriptionId}")]
+        public async Task<IActionResult> GetBillDetails(int prescriptionId)
         {
-            var medicinebill = await _repository.GetViewModelPrescriptionBill();
-            if (medicinebill == null)
+            var billDetails = await _repository.GetBillDetailsByPrescriptionIdAsync(prescriptionId);
+
+            if (billDetails == null)
             {
-                return NotFound("No Medicine Bill found");
+                return NotFound(new { Message = "Bill details not found for the given PrescriptionId." });
             }
 
-            return Ok(medicinebill);
+            return Ok(billDetails);
         }
         #endregion
 
@@ -163,7 +166,7 @@ namespace ClinicManagementSys.Controllers
         #endregion
 
         #region 9 Get All Categories
-        [HttpGet("v2")]
+        [HttpGet("v2")] 
         public async Task<ActionResult<IEnumerable<Category>>> GetAllCategory()
         {
             var category = await _repository.GetCategory();
@@ -175,6 +178,105 @@ namespace ClinicManagementSys.Controllers
             return Ok(category);
         }
         #endregion
+
+        #region 10 - Get All Medicine prescription details by view model - Search All
+        [HttpGet("v3")]
+
+        public async Task<ActionResult<IEnumerable<MedicineDistribution>>> GetAllMedicineDistribution()
+        {
+            var medicineDistribution = await _repository.GetTblMedicineDistribution();
+            if (medicineDistribution == null)
+            {
+                return NotFound("No Medicine prescription found");
+            }
+
+            return Ok(medicineDistribution);
+        }
+
+        #endregion
+
+        #region 11 - Insert an Medicine prescription details- Return Prescription Record
+        [HttpPost("md")]
+        public async Task<ActionResult<MedicineDistribution>> InsertPostTblMedicineDistributionReturnRecord(MedicineDistribution medicineDistribution)
+        {
+            if (ModelState.IsValid)
+            {
+                //insert a new record and return as an object named employee
+                var newMedicineDistribution = await _repository.PostTblMedicinePrescriptionReturnRecord(medicineDistribution);
+                if (newMedicineDistribution != null)
+                {
+                    return Ok(newMedicineDistribution);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            return BadRequest();
+        }
+        #endregion
+
+        #region 12- post all Medicine prescription using ViewModel
+        [HttpPost("add-md")]
+        public async Task<ActionResult> AddMedicineDistribution([FromBody] MedicineDistribution model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            var result = await _repository.AddMedicineDistributionAsync(model);
+
+            if (!result)
+            {
+                return StatusCode(500, "An error occurred while adding the medicine distribution.");
+            }
+
+            return Ok("Medicine distribution added successfully.");
+        }
+
+
+        #endregion
+
+
+        #region 13 - Stock management
+
+        //quantity reduction
+        [HttpGet("inventory/{medicineId}")]
+        public async Task<ActionResult<MedicineInventory>> GetMedicineInventory(int medicineId)
+        {
+            var inventory = await _repository.GetMedicineInventoryByMedicineIdAsync(medicineId);
+
+            if (inventory == null || inventory.Value == null)
+            {
+                return NotFound("Inventory not found for the specified medicine");
+            }
+
+            return Ok(inventory.Value);
+        }
+
+        [HttpPost("distribute")]
+        public async Task<ActionResult<MedicineDistribution>> DistributeMedicine(MedicineDistribution medicineDistribution)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _repository.DistributeMedicineWithInventoryUpdateAsync(medicineDistribution);
+
+            if (result == null)
+            {
+                return BadRequest(new
+                {
+                    message = "Failed to distribute medicine. Please check inventory availability."
+                });
+            }
+
+            return Ok(result);
+        }
+        #endregion
+
     }
 
 }

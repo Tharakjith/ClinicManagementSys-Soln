@@ -13,7 +13,7 @@ public partial class TestPrescription
 
     public string? SampleItem { get; set; }
 
-    public virtual Appointment? Appointment { get; set; }
+    public virtual Appointment? Appointments { get; set; }
 
     public virtual Labtest? LabTest { get; set; }
 }

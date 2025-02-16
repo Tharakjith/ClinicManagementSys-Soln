@@ -1,4 +1,5 @@
 ﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static ClinicManagementSys.Repository.LabTestRepository;
@@ -87,7 +88,43 @@ namespace ClinicManagementSys.Repository
             }
         }
         #endregion
+        public async Task<IEnumerable<LabAppViewModel>> GetLabTestsForTodayAsync()
+        {
+            try
+            {
+                var today = DateTime.Today;
 
+                var labTests = await (from tp in _context.TestPrescriptions
+                                      join a in _context.Appointments on tp.AppointmentId equals a.AppointmentId
+                                      join p in _context.Patients on a.PatientId equals p.PatientId
+                                      join d in _context.Doctors on a.DoctorId equals d.DoctorId
+                                      join lt in _context.Labtests on tp.LabTestId equals lt.LabTestId
+                                      join lr in _context.LoginRegistrations on d.RegistrationId equals lr.RegistrationId
+                                      join s in _context.Staff on lr.StaffId equals s.StaffId
+                                      where a.AppointmentDate == today
+                                      select new LabAppViewModel
+                                      {
+                                          LTReportId = tp.TpId,
+                                          AppointmentId = a.AppointmentId,
+                                          StaffId = s.StaffId,
+                                          StaffName = s.StaffName,
+                                          PatientId = p.PatientId,
+                                          PatientName = p.PatientName,
+                                          DoctorId = d.DoctorId,
+                                          LabTestId = lt.LabTestId,
+                                          HighRange = lt.HighRange.HasValue ? (int)lt.HighRange : 0,
+                                          LowRange = lt.LowRange.HasValue ? (int)lt.LowRange : 0,
+                                          ActualResult = 0, // Placeholder for lab test result logic
+                                          Remarks = string.Empty // Placeholder for remarks
+                                      }).ToListAsync();
+
+                return labTests;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching lab tests for today.", ex);
+            }
+        }
 
     }
 
