@@ -6,7 +6,7 @@ namespace ClinicManagementSys.Repository
     public interface IRegistrationRepository
     {
         #region 1-Get all login
-        public Task<ActionResult<IEnumerable<LoginRegistration>>> GetAlllogin();
+        public  Task<ActionResult<IEnumerable<LoginRegistration>>> GetAlllogin();
 
         #endregion
 
