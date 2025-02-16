@@ -1,4 +1,4 @@
-﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.Model;
 using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -291,9 +291,8 @@ namespace ClinicManagementSys.Repository
 
         #region  4 - Get all Doctors based on Specialization
 
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId)
+        public async Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId)
 
-        public async Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId
         {
             try
             {
@@ -547,12 +546,14 @@ namespace ClinicManagementSys.Repository
                 if (availability.TimeSlot.Weekdays == null)
                     throw new InvalidOperationException("Weekdays information not found for the selected timeslot");
 
+
                 // Check for existing appointments
                 var existingAppointments = await _context.Appointments
                     .Where(a => a.DoctorId == appointment.DoctorId
                         && a.AppointmentDate.Date == appointment.AppointmentDate.Date
                         && a.AvailabilityId == appointment.AvailabilityId)
                     .ToListAsync();
+
 
                 if (existingAppointments.Count >= 15)
                     throw new InvalidOperationException("Maximum appointments reached for this time slot");

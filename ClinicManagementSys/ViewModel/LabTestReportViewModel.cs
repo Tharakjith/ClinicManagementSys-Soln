@@ -1,11 +1,10 @@
-﻿namespace ClinicManagementSys.ViewModel
+namespace ClinicManagementSys.ViewModel
 {
     public class LabTestReportViewModel
     {
         public int TpId { get; set; }
         public int LtreportId { get; set; }
         public int AppointmentId { get; set; }
-        public int PatientId { get; set; }
         public int LabTestId { get; set; }
         public decimal? HighRange { get; set; }
         public decimal? LowRange { get; set; }
@@ -19,3 +18,4 @@
         public string SampleItem { get; set; }
     }
 }
+
