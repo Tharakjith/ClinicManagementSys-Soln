@@ -64,6 +64,34 @@ namespace ClinicManagementSys.Controllers
             return BadRequest();
         }
         #endregion
+        #region 3 -  Get all doctors from DB 
+       
+        [HttpGet("DoctorNames")]
+        public async Task<IActionResult> GetDoctorNames()
+        {
+            var doctorNames = await _repository.GetDoctorNamesAsync();
+            if (doctorNames == null || !doctorNames.Any())
+            {
+                return NotFound("No doctors found.");
+            }
+            return Ok(doctorNames);
+        }
+        #endregion
+
+
+        #region 3 -  Get all doctors from DB 
+
+        [HttpGet("DoctorNames")]
+        public async Task<IActionResult> GetDoctorNames()
+        {
+            var doctorNames = await _repository.GetDoctorNamesAsync();
+            if (doctorNames == null || !doctorNames.Any())
+            {
+                return NotFound("No doctors found.");
+            }
+            return Ok(doctorNames);
+        }
+        #endregion
 
 
         #region 3 -  Get all doctors from DB 
