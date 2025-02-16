@@ -100,6 +100,7 @@ namespace ClinicManagementSys.Repository
             }
             catch (Exception ex)
             {
+                // Log error if needed
                 return null;
             }
         }
