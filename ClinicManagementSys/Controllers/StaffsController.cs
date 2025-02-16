@@ -20,7 +20,7 @@ namespace ClinicManagementSys.Controllers
         }
         #region Get all employees
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        // [Authorize(AuthenticationSchemes = "Bearer")]
 
         public async Task<ActionResult<IEnumerable<Staff>>> GetAllStaffs()
         {
@@ -38,10 +38,10 @@ namespace ClinicManagementSys.Controllers
         {
             var st = await _repository.Getstaffbycode(id);
             if (st == null)
-           {
-               return NotFound("No Staff found ");
-           }
-           return Ok(st);
+            {
+                return NotFound("No Staff found ");
+            }
+            return Ok(st);
         }
         #endregion
         #region 5 insert an employee return employee by id
@@ -159,6 +159,36 @@ namespace ClinicManagementSys.Controllers
             }
         }
 
+        #region 8 Get All Departments
+        [HttpGet("v2")]
+        public async Task<ActionResult<IEnumerable<Department>>> GetAllDepartments()
+        {
+            var departments = await _repository.GetTblDepartments();
+            if (departments == null)
+            {
+                return NotFound("No Department found");
+            }
+
+            return Ok(departments);
+        }
+        #endregion
+
+        [HttpPost]
+        public async Task<ActionResult<Staff>> InsertTblEmployeesReturnRecord(Staff employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid employee data.");
+            }
+
+            var newEmployee = await _repository.postTblEmployeesReturnRecord(employee);
+            if (newEmployee != null)
+            {
+                return Ok(newEmployee);
+            }
+
+            return StatusCode(500, "An error occurred while saving the employee.");
+        }
 
     }
 }

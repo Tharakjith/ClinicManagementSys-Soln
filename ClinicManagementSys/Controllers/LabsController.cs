@@ -46,7 +46,7 @@ namespace ClinicManagementSys.Controllers
 
         #region Insert a doctor and return doctor by ID
         [HttpPost("v1")]
-        public async  Task<ActionResult<int>> InsertLabtest(Labtest labtests)
+        public async Task<ActionResult<int>> InsertLabtest(Labtest labtests)
         {
             if (ModelState.IsValid)
             {
@@ -66,7 +66,7 @@ namespace ClinicManagementSys.Controllers
 
         #region Update employee
         [HttpPut("{id}")]
-        public async Task<ActionResult<Labtest>> updateLabtestf(int id,Labtest labtests)
+        public async Task<ActionResult<Labtest>> updateLabtestf(int id, Labtest labtests)
         {
             if (ModelState.IsValid)
             {
@@ -112,5 +112,22 @@ namespace ClinicManagementSys.Controllers
             }
         }
         #endregion
+
+        [HttpPost]
+        public async Task<ActionResult<Labtest>> InsertTblEmployeesReturnRecord(Labtest employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid employee data.");
+            }
+
+            var newEmployee = await _repository.postTblEmployeesReturnRecord(employee);
+            if (newEmployee != null)
+            {
+                return Ok(newEmployee);
+            }
+
+            return StatusCode(500, "An error occurred while saving the employee.");
+        }
     }
 }

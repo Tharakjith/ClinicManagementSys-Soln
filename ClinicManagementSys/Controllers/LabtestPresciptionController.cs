@@ -30,21 +30,37 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
 
-        #region 2 - Get an Patient based on Id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TestPrescription>> GetAllTestPrescriptionById(int id)
+        /*   #region 2 - Get an Patient based on Id
+           [HttpGet("{id}")]
+           public async Task<ActionResult<LabTestReport>> GetAllTestPrescriptionById(int id)
+           {
+               var patient = await _repository.GetTestPrescriptionById(id);
+               if (patient == null)
+               {
+                   return NotFound("Oops! No Patient found on this Id");
+               }
+               return Ok(patient);
+           }
+           #endregion
+        */
+
+        #region 
+
+        [HttpGet("v7")]
+        public async Task<ActionResult<IEnumerable<Labtest>>> GetAllLabtestName()
         {
-            var patient = await _repository.GetTestPrescriptionById(id);
-            if (patient == null)
+            var departments = await _repository.GetLabtestName();
+            if (departments == null)
             {
-                return NotFound("Oops! No Patient found on this Id");
+                return NotFound("No Labtest found");
             }
-            return Ok(patient);
+
+            return Ok(departments);
         }
         #endregion
 
         #region  3  - Insert an Patient -return Patient record
-        [HttpPost]
+        [HttpPost("LP")]
         public async Task<ActionResult<TestPrescription>> InsertTestPrescriptionReturnRecord(TestPrescription patient)
         {
             if (ModelState.IsValid)
@@ -61,6 +77,19 @@ namespace ClinicManagementSys.Controllers
                 }
             }
             return BadRequest();
+        }
+        #endregion
+
+        #region 2 - Get an Patient based on Id
+        [HttpGet("{id}")]
+        public async Task<ActionResult<LabTestReport>> GetReportDetailById(int id)
+        {
+            var patient = await _repository.GetReportDetailById(id);
+            if (patient == null)
+            {
+                return NotFound("Oops! No Patient found on this Id");
+            }
+            return Ok(patient);
         }
         #endregion
 

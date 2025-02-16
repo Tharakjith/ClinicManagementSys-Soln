@@ -49,7 +49,6 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region  4 - Get all Doctors based on Specialization
-
         public Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId);
         #endregion
 
@@ -67,6 +66,11 @@ namespace ClinicManagementSys.Repository
 
         #region 8 - Insert Appointment and return success
         public Task<ActionResult<Appointment>> BookAppointment(Appointment appointment);
+
+        #endregion
+
+        #region 9 - Patient Bill generate View model
+        public Task<PatientBillVm?> GetPatientBillByIdAsync(int patientId);
         #endregion
 
         #endregion

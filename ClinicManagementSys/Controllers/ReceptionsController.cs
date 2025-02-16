@@ -133,7 +133,7 @@ namespace ClinicManagementSys.Controllers
 
         #endregion
 
-        #region APPOINTMENT BOOKING Operation
+        #region APPOINTMENT BOOKING 
 
         #region 1 -  Get all Appointment from DB 
         [HttpGet("Appointments")]
@@ -159,7 +159,7 @@ namespace ClinicManagementSys.Controllers
             }
             return Ok(specializations);
         }
-       
+
         #endregion
 
         #region 3 -  Get all doctors from DB 
@@ -212,11 +212,7 @@ namespace ClinicManagementSys.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (optional)
-                Console.WriteLine($"Error: {ex.Message}");
-
-                // Return a friendly message in case of an exception
-                return BadRequest("Unable to fetch the consultation fee. Please try again.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
         #endregion
@@ -274,26 +270,68 @@ namespace ClinicManagementSys.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { success = false, message = "Invalid appointment data" });
+                return BadRequest(new { success = false, message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
             }
 
             try
             {
+                // Validate required fields
+                if (appointment.PatientId <= 0 || appointment.DoctorId <= 0 ||
+                    appointment.SpecializationId <= 0 || appointment.AvailabilityId <= 0)
+                {
+                    return BadRequest(new { success = false, message = "Required fields are missing or invalid" });
+                }
+
+                // Generate consultation fee based on doctor
+                var consultationFee = await _repository.GetConsultationFeeByDoctorId(appointment.DoctorId);
+                appointment.ConsultationFee = consultationFee;
+
                 // Call the repository method to book the appointment
                 var bookedAppointment = await _repository.BookAppointment(appointment);
 
                 // Return the booked appointment details
-                return Ok(new { success = true, appointment = bookedAppointment });
+                return Ok(new
+                {
+                    success = true,
+                    appointment = new
+                    {
+                        bookedAppointment.Value.AppointmentId,
+                        bookedAppointment.Value.PatientId,
+                        bookedAppointment.Value.DoctorId,
+                        bookedAppointment.Value.AppointmentDate,
+                        bookedAppointment.Value.TokenNumber,
+                        bookedAppointment.Value.ConsultationFee,
+                        bookedAppointment.Value.RegistrationFee,
+                        bookedAppointment.Value.AppointmentStatusId,
+                        DoctorName = bookedAppointment.Value.Doctor?.Registration?.Staff?.StaffName,
+                        PatientName = bookedAppointment.Value.Patient?.PatientName,
+                        SpecializationName = bookedAppointment.Value.Specialization?.SpecializationName,
+                        Status = bookedAppointment.Value.AppointmentStatus?.AppointmentStatus1
+                    }
+                });
             }
             catch (InvalidOperationException ex)
             {
-                // Return an error response in case of an exception
                 return BadRequest(new { success = false, message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                return StatusCode(500, new { success = false, message = "An error occurred while booking the appointment." });
             }
+        }
+        #endregion
+
+        #region 9 - Patient Bill generate View model
+        [HttpGet("bill/{patientId}")]
+        public async Task<IActionResult> GetPatientBill(int patientId)
+        {
+            var patientBill = await _repository.GetPatientBillByIdAsync(patientId);
+            if (patientBill == null)
+            {
+                return NotFound(new { Message = "Patient or appointment details not found." });
+            }
+
+            return Ok(patientBill);
         }
         #endregion
 

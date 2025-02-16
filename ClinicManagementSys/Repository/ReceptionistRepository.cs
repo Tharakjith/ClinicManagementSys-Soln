@@ -310,19 +310,18 @@ namespace ClinicManagementSys.Repository
                         .ToListAsync();
 
                     return doctors;
-                            }
+                }
 
-        return Enumerable.Empty<object>();
-    }
-    catch (Exception ex)
-    {
-        throw new InvalidOperationException($"Error fetching doctors by specialization: {ex.Message}");
-    }
-}
+                return Enumerable.Empty<object>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching doctors by specialization: {ex.Message}");
+            }
+        }
 
-#endregion
+        #endregion
 
-  
         #region 5 - Get Consultation Fee by Doctor ID
         public async Task<decimal> GetConsultationFeeByDoctorId(int doctorId)
         {
@@ -330,20 +329,18 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    // Fetch the consultation fee of the specified doctor
-                    var consultationFee = await _context.Doctors
-                        .Where(d => d.DoctorId == doctorId)
-                        .Select(d => d.ConsultationFee)
-                        .FirstOrDefaultAsync();
+                    // Fetch the doctor by ID
+                    var doctor = await _context.Doctors
+                        .FirstOrDefaultAsync(d => d.DoctorId == doctorId);
 
-                    // Check if the doctor was found
-                    if (consultationFee != 0)
+                    // Check if the doctor exists
+                    if (doctor == null)
                     {
-                        //return consultationFee;
-
+                        throw new InvalidOperationException("Doctor not found");
                     }
 
-                    throw new InvalidOperationException("Doctor not found");
+                    // Return the consultation fee
+                    return doctor.ConsultationFee;
                 }
 
                 throw new InvalidOperationException("Database context is not initialized");
@@ -357,6 +354,7 @@ namespace ClinicManagementSys.Repository
                 throw new InvalidOperationException("An error occurred while fetching the consultation fee");
             }
         }
+
         #endregion
 
         #region 6 -  Get Daily Availability of a Doctor
@@ -434,27 +432,120 @@ namespace ClinicManagementSys.Repository
                 if (appointment == null || _context == null)
                     throw new ArgumentNullException(nameof(appointment));
 
-                // Check if the doctor is available on the given date
-                var dailyAvailability = await _context.Availabilities
-                    .FirstOrDefaultAsync(d => d.DoctorId == appointment.DoctorId);
+                // Debug logging
+                Console.WriteLine($"Booking appointment for Doctor: {appointment.DoctorId}, Patient: {appointment.PatientId}");
 
-                // Generate Token Number
-                var tokenNumber = await GenerateTokenNumber(appointment.DoctorId, appointment.AppointmentDate, appointment.AvailabilityId);
+                // Check Doctor
+                var doctor = await _context.Doctors
+                    .FirstOrDefaultAsync(d => d.DoctorId == appointment.DoctorId && d.DoctorIsActive == true);
+                if (doctor == null)
+                    throw new InvalidOperationException($"Active doctor not found with ID: {appointment.DoctorId}");
 
-                // Set the token number and appointment status
-                appointment.TokenNumber = tokenNumber;
-                appointment.AppointmentStatusId = 1; // Assuming 1 is for 'Booked'
+                // Check Patient
+                var patient = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.PatientId == appointment.PatientId);
+                if (patient == null)
+                    throw new InvalidOperationException($"Patient not found with ID: {appointment.PatientId}");
 
-                // Save the appointment
-                await _context.Appointments.AddAsync(appointment);
-                await _context.SaveChangesAsync();
+                // Check Availability with explicit loading of TimeSlot and Weekdays
+                var availability = await _context.Availabilities
+                    .Include(a => a.TimeSlot)
+                        .ThenInclude(t => t.Weekdays)
+                    .FirstOrDefaultAsync(a => a.AvailabilityId == appointment.AvailabilityId);
 
-                return appointment; // Return the booked appointment
+                if (availability == null)
+                    throw new InvalidOperationException($"Availability slot not found with ID: {appointment.AvailabilityId}");
+
+                if (availability.TimeSlot == null)
+                    throw new InvalidOperationException("TimeSlot not found for the selected availability");
+
+                if (availability.TimeSlot.Weekdays == null)
+                    throw new InvalidOperationException("Weekdays information not found for the selected timeslot");
+
+                // Check for existing appointments
+                var existingAppointments = await _context.Appointments
+                    .Where(a => a.DoctorId == appointment.DoctorId
+                        && a.AppointmentDate.Date == appointment.AppointmentDate.Date
+                        && a.AvailabilityId == appointment.AvailabilityId)
+                    .ToListAsync();
+
+                if (existingAppointments.Count >= 15)
+                    throw new InvalidOperationException("Maximum appointments reached for this time slot");
+
+                // Generate token number
+                int tokenNumber = existingAppointments.Count + 1;
+
+                // Create new appointment with all required fields
+                var newAppointment = new Appointment
+                {
+                    PatientId = appointment.PatientId,
+                    SpecializationId = appointment.SpecializationId,
+                    DoctorId = appointment.DoctorId,
+                    AvailabilityId = appointment.AvailabilityId,
+                    AppointmentDate = appointment.AppointmentDate.Date,
+                    ConsultationFee = doctor.ConsultationFee,
+                    RegistrationFee = 100.00M,
+                    TokenNumber = tokenNumber,
+                    AppointmentStatusId = 1 // Success status
+                };
+
+                try
+                {
+                    // Add and save
+                    _context.Appointments.Add(newAppointment);
+                    await _context.SaveChangesAsync();
+
+                    Console.WriteLine($"Successfully booked appointment with ID: {newAppointment.AppointmentId}");
+
+                    return newAppointment;
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    var innerException = dbEx.InnerException?.Message ?? "No inner exception details";
+                    throw new InvalidOperationException($"Database update error: {innerException}");
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error in BookAppointment: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw new InvalidOperationException($"Error booking appointment: {ex.Message}");
             }
+        }
+        #endregion
+
+        #region 9 - Patient Bill generate View model
+        public async Task<PatientBillVm?> GetPatientBillByIdAsync(int patientId)
+        {
+            var patientBill = await _context.Patients
+                .Include(p => p.Appointments)
+                .ThenInclude(a => a.Doctor)
+                .ThenInclude(d => d.Registration)
+                .ThenInclude(r => r.Staff)
+                .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+            if (patientBill == null) return null;
+
+            var appointment = patientBill.Appointments.OrderByDescending(a => a.AppointmentDate).FirstOrDefault();
+            if (appointment == null) return null;
+
+            var doctor = appointment.Doctor;
+            var staffName = doctor?.Registration?.Staff?.StaffName;
+
+            return new PatientBillVm
+            {
+                PatientId = patientBill.PatientId,
+                PatientName = patientBill.PatientName,
+                PatientPhone = patientBill.PatientPhone,
+                PatientAddress = patientBill.PatientAddress,
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                StaffName = staffName,
+                TokenNumber = appointment.TokenNumber,
+                AppointmentDate = appointment.AppointmentDate,
+                ConsultationFee = appointment.ConsultationFee,
+                RegistrationFee = appointment.RegistrationFee
+            };
         }
         #endregion
 
@@ -462,4 +553,3 @@ namespace ClinicManagementSys.Repository
 
     }
 }
-

@@ -26,7 +26,7 @@ public partial class Appointment
     public int AppointmentStatusId { get; set; }
 
 
-    public virtual AppointmentStatus AppointmentStatus { get; set; } = null!;
+    public virtual AppointmentStatus? AppointmentStatus { get; set; } = null!;
 
 
     [System.Text.Json.Serialization.JsonIgnore]
@@ -35,13 +35,13 @@ public partial class Appointment
     [System.Text.Json.Serialization.JsonIgnore]
     public virtual ICollection<DailyAvailability> DailyAvailabilities { get; set; } = new List<DailyAvailability>();
 
-    public virtual Doctor Doctor { get; set; } = null!;
+    public virtual Doctor? Doctor { get; set; } = null!;
 
     [System.Text.Json.Serialization.JsonIgnore]
     public virtual ICollection<LabTestReport> LabTestReports { get; set; } = new List<LabTestReport>();
 
-  
-    public virtual Patient Patient { get; set; } = null!;
+
+    public virtual Patient? Patient { get; set; } = null!;
 
 
     [System.Text.Json.Serialization.JsonIgnore]
@@ -51,7 +51,7 @@ public partial class Appointment
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 
 
-    public virtual Specialization Specialization { get; set; } = null!;
+    public virtual Specialization? Specialization { get; set; } = null!;
 
 
     [System.Text.Json.Serialization.JsonIgnore]

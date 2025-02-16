@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClinicManagementSys.Repository
 {
-    public class ViewLabReportRepository: IViewLabReportRepository
+    public class ViewLabReportRepository : IViewLabReportRepository
     {
         private readonly ClinicManagementSysContext _context;
 

@@ -87,15 +87,14 @@ namespace ClinicManagementSys.Repository
 
         public async Task<ActionResult<IEnumerable<LoginRegistration>>> GetAlllogin()
         {
+
             try
             {
                 if (_context != null)
                 {
-                    return await _context.LoginRegistrations
-                        .Include(s => s.Role)
-                        .Include(s => s.Staff)
-                        .ToListAsync();
+                    return await _context.LoginRegistrations.Include(s => s.Role).Include(s => s.Staff).ToListAsync();
                 }
+
 
                 return new List<LoginRegistration>();
             }
@@ -104,6 +103,9 @@ namespace ClinicManagementSys.Repository
                 return null;
             }
         }
+
+
+
 
         public async Task<ActionResult<LoginRegistration>> Getloginbycode(int id)
         {
@@ -127,52 +129,10 @@ namespace ClinicManagementSys.Repository
             }
         }
 
-        public async Task<ActionResult<int>> insertlogin(LoginRegistration login)
-        {
-            try
-            {
-                // Validate input
-                if (login == null)
-                {
-                    throw new ArgumentNullException(nameof(login), "Login data is null");
-                }
 
-                // Ensure context is initialized
-                if (_context == null)
-                {
-                    throw new InvalidOperationException("Database context is not initialized.");
-                }
 
-                // Check if the username matches a StaffName from the StaffTable
-                var staff = await _context.Staff.FirstOrDefaultAsync(s => s.StaffName == login.Username);
-                if (staff == null)
-                {
-                    throw new Exception("Username does not match any staff name in the staff table.");
-                }
 
-                // Set the password to be StaffId + "KATT"
-                login.Password = staff.StaffId + "KATT";
 
-                // Add the login record to the context
-                await _context.LoginRegistrations.AddAsync(login);
-
-                // Save changes to the database
-                var changesRecord = await _context.SaveChangesAsync();
-                if (changesRecord > 0)
-                {
-                    return login.RegistrationId;
-                }
-                else
-                {
-                    throw new Exception("Failed to save login record to the database.");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (optional, depending on your logging setup)
-                return null;
-            }
-        }
 
 
         public async Task<ActionResult<LoginRegistration>> updatelogin(int id, LoginRegistration login)
@@ -220,6 +180,73 @@ namespace ClinicManagementSys.Repository
             }
         }
 
-        
+        public async Task<ActionResult<IEnumerable<Staff>>> GetTblDepartments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Staff.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Staff>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<IEnumerable<Role>>> Getroles()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Roles.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Role>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<LoginRegistration> AddLoginRegistration(LoginRegistration loginRegistration)
+        {
+            if (loginRegistration == null)
+            {
+                throw new ArgumentNullException(nameof(loginRegistration), "LoginRegistration data is null");
+            }
+
+            // Validate StaffId
+            if (!await _context.Staff.AnyAsync(s => s.StaffId == loginRegistration.StaffId))
+            {
+                throw new InvalidOperationException("Invalid StaffId");
+            }
+
+            // Validate RoleId
+            if (!await _context.Roles.AnyAsync(r => r.RoleId == loginRegistration.RoleId))
+            {
+                throw new InvalidOperationException("Invalid RoleId");
+            }
+
+            // Add LoginRegistration to the database
+            await _context.LoginRegistrations.AddAsync(loginRegistration);
+            await _context.SaveChangesAsync();
+
+            // Return the inserted record with related entities
+            var insertedLoginRegistration = await _context.LoginRegistrations
+                .Include(lr => lr.Role)
+                .Include(lr => lr.Staff)
+                .FirstOrDefaultAsync(lr => lr.RegistrationId == loginRegistration.RegistrationId);
+
+            return insertedLoginRegistration;
+        }
+
+
     }
 }

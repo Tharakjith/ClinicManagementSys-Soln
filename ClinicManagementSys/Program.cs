@@ -79,6 +79,7 @@ namespace ClinicManagementSys
             builder.Services.AddScoped<IViewLabReportRepository, ViewLabReportRepository>();
             builder.Services.AddScoped<IViewPatientAppoinmentRepository, ViewPatientAppoinmentRepository>();
             builder.Services.AddScoped<ILabTestRepository, LabTestRepository>();
+            builder.Services.AddScoped<ILabTestRepositoryNew, LabTestRepositoryNew>();
 
             //swagger registration
             builder.Services.AddSwaggerGen();

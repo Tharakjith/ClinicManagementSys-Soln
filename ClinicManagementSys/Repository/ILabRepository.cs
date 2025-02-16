@@ -23,8 +23,8 @@ namespace ClinicManagementSys.Repository
         public Task<ActionResult<Labtest>> updateLabtestf(int id, Labtest labtests);
         #endregion
         #region 7-delete Labtest
-        public JsonResult Deletelabtests(int id);  
+        public JsonResult Deletelabtests(int id);
         #endregion
-
+        public Task<ActionResult<Labtest>> postTblEmployeesReturnRecord(Labtest tblemployee);
     }
 }
