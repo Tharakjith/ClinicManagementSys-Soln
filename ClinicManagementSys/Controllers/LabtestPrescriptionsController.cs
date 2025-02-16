@@ -64,6 +64,6 @@ namespace ClinicManagementSys.Controllers
         #endregion
 
 
-    //}
-//}
+    }
+}
 

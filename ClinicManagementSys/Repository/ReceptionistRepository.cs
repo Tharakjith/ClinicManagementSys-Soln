@@ -290,12 +290,7 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region  4 - Get all Doctors based on Specialization
-<<<<<<< Updated upstream
-=======
 
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId);
-
->>>>>>> Stashed changes
         public async Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId)
         {
             try
