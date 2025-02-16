@@ -60,7 +60,6 @@ namespace ClinicManagementSys.Controllers
             return Ok(departments);
         }
         #endregion
-
         #region  3  - Insert an Patient -return Patient record
         [HttpPost("AM")]
         public async Task<ActionResult<Prescription>> InsertMedicineDetailReturnRecord(Prescription patient)

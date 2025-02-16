@@ -1,4 +1,4 @@
-﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.Model;
 using ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -290,18 +290,96 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region  4 - Get all Doctors based on Specialization
-<<<<<<< Updated upstream
-=======
 
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialization(int specializationId);
-
->>>>>>> Stashed changes
         public async Task<IEnumerable<object>> GetDoctorsBySpecializationWithStaffDetails(int specializationId)
+
         {
             try
             {
                 if (_context != null)
                 {
+
+                    return await _context.Doctors
+                        .Where(d => d.SpecializationId == specializationId)
+                        .Include(d => d.Specialization)
+                        .ToListAsync();
+                }
+                return new List<Doctor>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching from Specialization's doctors: {ex.Message}");
+            }
+        }
+        #endregion
+
+        #region   Get Daily Availability of a Doctor
+
+        public async Task<ActionResult<IEnumerable<DailyAvailability>>> GetDoctorDailyAvailability(int doctorId, DateTime date)
+        {
+            
+            try
+            {
+                if (_context != null)
+                {
+                    return null;
+                    // Fetching DailyAvailability by DoctorId and AvailableDate
+                    //var dailyAvailabilities = await _context.DailyAvailabilities
+                        //.Where(d => d.Availability.DoctorId == doctorId && d.AvailableDate.Date == date.Date)
+                        //.Include(d => d.Availability.Doctor)
+                        //.ToListAsync();
+
+                   // return dailyAvailabilities;
+                }
+                return new List<DailyAvailability>();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error fetching doctor's daily availability: {ex.Message}");
+            }
+           
+        }
+
+        #endregion
+
+
+        #region 5 - Get Doctor's Daily Availability by Doctor ID and Date
+        public async Task<Weekday> GetWeekdayByName(string dayName)
+        {
+            return await _context.Weekdays.FirstOrDefaultAsync(w => w.WeekdaysName.Equals(dayName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public async Task<IEnumerable<Availability>> GetAvailabilityByDoctorIdAndWeekday(int doctorId, int weekdayId)
+        {
+            return await _context.Availabilities
+                .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekdayId)
+                .Include(a => a.TimeSlot)
+                .ToListAsync();
+        }
+        public async Task<ActionResult<IEnumerable<Availability>>> GetDoctorAvailabilityByDoctorIdAndDate(int doctorId, DateTime date)
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    // Step 1: Determine the name of the day for the given date
+                    string dayName = date.DayOfWeek.ToString();
+
+                    // Step 2: Fetch the weekday ID from the weekdays table
+                    var weekday = await _context.Weekdays
+                        .FirstOrDefaultAsync(w => w.WeekdaysName.Equals(dayName, StringComparison.OrdinalIgnoreCase));
+
+                    if (weekday == null)
+                    {
+                        return new List<Availability>(); // Return empty if the weekday is not found
+                    }
+
+                    // Step 3: Find the doctor's availability for that weekday
+                    var availability = await _context.Availabilities
+                        .Where(a => a.DoctorId == doctorId && a.TimeSlot.WeekdaysId == weekday.WeekdaysId)
+                        .Include(a => a.TimeSlot) // Include timeslot details
+                        .ToListAsync();
+
                     var doctors = await _context.Doctors
                         .Where(d => d.SpecializationId == specializationId && d.DoctorIsActive == true)
                         .Include(d => d.Registration) // Includes the LoginRegistration
@@ -468,12 +546,14 @@ namespace ClinicManagementSys.Repository
                 if (availability.TimeSlot.Weekdays == null)
                     throw new InvalidOperationException("Weekdays information not found for the selected timeslot");
 
+
                 // Check for existing appointments
                 var existingAppointments = await _context.Appointments
                     .Where(a => a.DoctorId == appointment.DoctorId
                         && a.AppointmentDate.Date == appointment.AppointmentDate.Date
                         && a.AvailabilityId == appointment.AvailabilityId)
                     .ToListAsync();
+
 
                 if (existingAppointments.Count >= 15)
                     throw new InvalidOperationException("Maximum appointments reached for this time slot");

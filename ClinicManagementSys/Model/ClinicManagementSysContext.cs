@@ -20,6 +20,8 @@ public partial class ClinicManagementSysContext : DbContext
     public virtual DbSet<AppointmentStatus> AppointmentStatuses { get; set; }
 
     public virtual DbSet<Availability> Availabilities { get; set; }
+   
+
 
     public virtual DbSet<BillStatus> BillStatuses { get; set; }
 
@@ -86,6 +88,8 @@ public partial class ClinicManagementSysContext : DbContext
             entity.ToTable("Appointment");
 
             entity.HasIndex(e => e.TokenNumber, "UQ__Appointm__435734E1FD4D00A8");
+
+
 
 
             entity.Property(e => e.AppointmentDate).HasColumnType("date");
