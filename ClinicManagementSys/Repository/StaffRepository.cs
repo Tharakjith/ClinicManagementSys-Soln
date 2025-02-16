@@ -8,13 +8,13 @@ namespace ClinicManagementSys.Repository
     public class StaffRepository : IStaffRepository
     {
         private readonly ClinicManagementSysContext _context;
-        
+
         public StaffRepository(ClinicManagementSysContext context)
         {
             _context = context;
         }
 
-        public  JsonResult Deletestaff(int id)
+        public JsonResult Deletestaff(int id)
         {
             try
             {//check idf employee object is not null
@@ -45,7 +45,7 @@ namespace ClinicManagementSys.Repository
                     };
                 }
                 //Find the employee by id
-                var existingstaff= _context.Staff.Find(id);
+                var existingstaff = _context.Staff.Find(id);
                 if (existingstaff == null)
                 {
                     return new JsonResult(new
@@ -65,7 +65,7 @@ namespace ClinicManagementSys.Repository
 
 
                 //save changes to the database
-                 _context.SaveChanges();
+                _context.SaveChanges();
 
 
 
@@ -101,10 +101,10 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    return await _context.Staff.Include(s => s.Department).ToListAsync();
+                    return await _context.Staff.Include(s => s.Department).OrderByDescending(s => s.StaffId).ToListAsync();
                 }
 
-               
+
                 return new List<Staff>();
             }
             catch (Exception ex)
@@ -133,7 +133,7 @@ namespace ClinicManagementSys.Repository
             }
         }
 
-      
+
 
 
 
@@ -144,19 +144,19 @@ namespace ClinicManagementSys.Repository
                 if (_context != null)
                 {
                     //linq
-                    return await(from e in _context.Staff
-                                 from d in _context.Departments
-                                 where e.DepartmentId == d.DepartmentId
-                                 select new StaffDepViewModel
-                                 {
+                    return await (from e in _context.Staff
+                                  from d in _context.Departments
+                                  where e.DepartmentId == d.DepartmentId
+                                  select new StaffDepViewModel
+                                  {
 
-                                     StaffName = e.StaffName,
-                                     Address = e.Address,
-                                     PhoneNumber = e.PhoneNumber,
-                                     StaffIsActive = e.StaffIsActive,
-                                     StaffId = e.StaffId,
-                                     DepartmentName = d.DepartmentName
-                                 }).ToListAsync();
+                                      StaffName = e.StaffName,
+                                      Address = e.Address,
+                                      PhoneNumber = e.PhoneNumber,
+                                      StaffIsActive = e.StaffIsActive,
+                                      StaffId = e.StaffId,
+                                      DepartmentName = d.DepartmentName
+                                  }).ToListAsync();
 
 
                 }
@@ -170,7 +170,7 @@ namespace ClinicManagementSys.Repository
             }
         }
 
-        public async  Task<ActionResult<int>> insertstaffs(Staff staff)
+        public async Task<ActionResult<int>> insertstaffs(Staff staff)
         {
             try
             {//check idf staff object is not null
@@ -230,8 +230,8 @@ namespace ClinicManagementSys.Repository
                 existingstaff.Address = staff.Address;
                 existingstaff.PhoneNumber = staff.PhoneNumber;
                 existingstaff.Email = staff.Email;
-                
-               
+
+
                 existingstaff.StaffIsActive = staff.StaffIsActive;
 
 
@@ -271,8 +271,59 @@ namespace ClinicManagementSys.Repository
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<ActionResult<IEnumerable<Department>>> GetTblDepartments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Departments.ToListAsync();
+                }
 
+                //return an empty list if context is null
+                return new List<Department>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<Staff>> postTblEmployeesReturnRecord(Staff employee)
+        {
+            try
+            {
+                if (employee == null)
+                {
+                    throw new ArgumentNullException(nameof(employee), "Employee data is null");
+                }
 
+                if (_context == null)
+                {
+                    throw new InvalidOperationException("Database context is not initialized.");
+                }
+
+                // Validate DepartmentId
+                if (!await _context.Departments.AnyAsync(d => d.DepartmentId == employee.DepartmentId))
+                {
+                    throw new InvalidOperationException("Invalid DepartmentId");
+                }
+
+                // Add employee to DbContext
+                await _context.Staff.AddAsync(employee);
+                await _context.SaveChangesAsync();
+
+                // Retrieve the employee with the related department
+                var employeewithDepartment = await _context.Staff.Include(e => e.Department)
+                    .FirstOrDefaultAsync(e => e.StaffId == employee.StaffId);
+
+                return employeewithDepartment;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new BadRequestObjectResult($"An error occurred: {ex.Message}");
+            }
+        }
 
     }
 }

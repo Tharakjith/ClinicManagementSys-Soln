@@ -15,7 +15,7 @@ namespace ClinicManagementSys.Controllers
             _startDiagnosysRepository = startDiagnosysRepository;
         }
 
-        
+
 
         /// <returns>A list of today's appointments.</returns>
         [HttpGet("todaysAppointments/{doctorId}")]

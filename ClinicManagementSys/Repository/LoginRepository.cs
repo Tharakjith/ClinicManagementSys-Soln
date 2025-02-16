@@ -1,4 +1,5 @@
 ﻿using ClinicManagementSys.Model;
+using ClinicManagementSys.ViewModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicManagementSys.Repository
@@ -6,36 +7,42 @@ namespace ClinicManagementSys.Repository
     public class LoginRepository : ILoginRepository
     {
         private readonly ClinicManagementSysContext _context;
-
         public LoginRepository(ClinicManagementSysContext context)
         {
             _context = context;
         }
 
-
-        public async Task<LoginRegistration> ValidateUsers(string username, string password)
+        public async Task<LoginRegistrationViewModel> ValidateUsers(string username, string password)
         {
             try
             {
                 if (_context != null)
                 {
-                    LoginRegistration dbUser = await _context.LoginRegistrations.FirstOrDefaultAsync(
-                        u => u.Username == username && u.Password == password);
+                    // Join LoginRegistration with Doctor table to get DoctorId when role is doctor
+                    var dbUser = await _context.LoginRegistrations
+                        .Where(u => u.Username == username && u.Password == password)
+                        .Select(u => new LoginRegistrationViewModel
+                        {
+                            Username = u.Username,
+                            RoleId = u.RoleId,
+                            RegistrationId = u.RegistrationId,
+                            DoctorId = u.RoleId == 2 ? // 2 is Doctor RoleId
+                                _context.Doctors
+                                    .Where(d => d.RegistrationId == u.RegistrationId)
+                                    .Select(d => d.DoctorId)
+                                    .FirstOrDefault()
+                                : null
+                        })
+                        .FirstOrDefaultAsync();
 
-                    if (dbUser != null)
-                    {
-                        return dbUser;
-                    }
+                    return dbUser;
                 }
-                //Return an empty if _context is null
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //return StatusCode(500, $"Internal server error : {ex.Message}"); 
                 return null;
             }
-
         }
     }
 }

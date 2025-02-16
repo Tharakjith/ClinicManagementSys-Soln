@@ -1,5 +1,6 @@
 ﻿using ClinicManagementSys.Model;
 using ClinicManagementSys.ViewModel;
+using ClinicManagementSys.ViewModel.ClinicManagementSys.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -93,10 +94,12 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    return await _context.Doctors
+                    var doctors = await _context.Doctors
                         .Include(s => s.Specialization)
                         .Include(s => s.Registration)
+                           .ThenInclude(r => r.Staff)
                         .ToListAsync();
+                    return doctors;
                 }
 
                 return new List<Doctor>();
@@ -223,7 +226,7 @@ namespace ClinicManagementSys.Repository
                     .Select(ds => new DoctorViewModel
                     {
                         StaffId = ds.Staffs.StaffId,
-                        StaffName = ds.Staffs.StaffName, 
+                        StaffName = ds.Staffs.StaffName,
                         Dob = ds.Staffs.Dob,
                         Address = ds.Staffs.Address,
                         PhoneNumber = ds.Staffs.PhoneNumber,
@@ -304,7 +307,266 @@ namespace ClinicManagementSys.Repository
             }
 
         }
+        public async Task<ActionResult<Doctor>> postTblEmployeesReturnRecord(Doctor employee)
+        {
+            try
+            {//check idf employee object is not null
+                if (employee == null)
+                {
+                    throw new ArgumentNullException(nameof(employee), "Employee data is null");
+
+                }
+                // ensure context is not null
+                if (_context == null)
+                {
+                    throw new InvalidOperationException("Database context is not initialized.");
+                }
+                //add the employee record to the dbcontext
+                await _context.Doctors.AddAsync(employee);
+
+                //save changes to the database
+                await _context.SaveChangesAsync();
+                //retrive the employee with the related departement
+                var employeewithDepartment = await _context.Doctors.Include(e => e.Registration).Include(e => e.Specialization)
+                    .FirstOrDefaultAsync(e => e.DoctorId == employee.DoctorId);
+                return employeewithDepartment;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ActionResult<IEnumerable<Specialization>>> GetTblDepartments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Specializations.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Specialization>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<IEnumerable<LoginRegistration>>> GetTblUsers()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.LoginRegistrations.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<LoginRegistration>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<ActionResult<IEnumerable<Staff>>> GetTblstaffs()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Staff.ToListAsync();
+                }
 
 
+                return new List<Staff>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        ///
+
+
+
+
+
+        public bool RegisterDoctor(doctorlistnew model)
+        {
+            // Fetch the Staff record based on StaffName
+            var staff = _context.Staff.FirstOrDefault(s => s.StaffName == model.StaffName);
+            if (staff == null)
+            {
+                return false;
+            }
+
+
+            var registration = _context.LoginRegistrations
+                .FirstOrDefault(r => r.StaffId == staff.StaffId && r.RoleId == 2 && r.RisActive);
+            if (registration == null)
+            {
+                return false;
+            }
+
+
+            var existingDoctor = _context.Doctors
+                .FirstOrDefault(d => d.RegistrationId == registration.RegistrationId);
+            if (existingDoctor != null)
+            {
+                return false;
+            }
+
+
+            var doctor = new Doctor
+            {
+                RegistrationId = registration.RegistrationId,
+                SpecializationId = model.SpecializationId,
+                ConsultationFee = model.ConsultationFee,
+                DoctorIsActive = model.DoctorIsActive
+            };
+
+            _context.Doctors.Add(doctor);
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public async Task<ActionResult<IEnumerable<Weekday>>> listallweekdays()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Weekdays.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Weekday>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<Timeslot>> listalltimeslotsrtments()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Timeslots
+                        .Include(t => t.Weekdays)  // Note: Weekdays instead of Weekday
+                        .Select(t => new Timeslot
+                        {
+                            TimeSlotId = t.TimeSlotId,
+                            StartTime = t.StartTime,
+                            EndTime = t.EndTime,
+                            WeekdaysId = t.WeekdaysId,
+                            Weekdays = t.Weekdays != null ? new Weekday  // Note: Weekday instead of Weekdays for the class
+                            {
+                                WeekdaysId = t.Weekdays.WeekdaysId,
+                                WeekdaysName = t.Weekdays.WeekdaysName
+                            } : null,
+                            Availabilities = new List<Availability>()  // Initialize empty availability list
+                        })
+                        .ToListAsync();
+                }
+                return new List<Timeslot>();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if you have logging configured
+                Console.WriteLine($"Error in listalltimeslotsrtments: {ex.Message}");
+                return null;
+            }
+        }
+
+        //AVAILABILITY
+        //public async Task<bool> InsertAvailabilityAsync(Availability availability)
+        //{
+        //    try
+        //    {
+        //        _context.Availabilities.Add(availability);
+        //        var result = await _context.SaveChangesAsync();
+        //        return result > 0;
+        //    }
+        //    catch (DbUpdateException)
+        //    {
+        //        throw new Exception("A database error occurred while saving the availability.");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new Exception("An unexpected error occurred while inserting availability.");
+        //    }
+        //}
+
+        //public async Task<Doctor?> GetDoctorByIdAsync(int doctorId)
+        //{
+        //    try
+        //    {
+        //        return await _context.Doctors.FindAsync(doctorId);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new Exception("An error occurred while retrieving doctor details.");
+        //    }
+        //}
+
+        //public async Task<Timeslot?> GetTimeslotByIdAsync(int timeslotId)
+        //{
+        //    try
+        //    {
+        //        return await _context.Timeslots.FindAsync(timeslotId);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw new Exception("An error occurred while retrieving timeslot details.");
+        //    }
+        //}
+
+
+        public async Task<object> AddAvailability(Availability availability)
+        {
+            _context.Availabilities.Add(availability);
+            await _context.SaveChangesAsync();
+
+            // Fetch the complete details including TimeSlot and Weekday information
+            var timeSlot = await GetTimeSlotDetails(availability.TimeSlotId.Value);
+
+            return new
+            {
+                AvailabilityId = availability.AvailabilityId,
+                DoctorId = availability.DoctorId,
+                TimeSlot = new
+                {
+                    StartTime = timeSlot.StartTime,
+                    EndTime = timeSlot.EndTime,
+                    WeekdayName = timeSlot.Weekdays.WeekdaysName
+                },
+                Session = availability.Session
+            };
+        }
+
+        public async Task<Timeslot> GetTimeSlotDetails(int timeSlotId)
+        {
+            return await _context.Timeslots
+                .Include(t => t.Weekdays)
+                .FirstOrDefaultAsync(t => t.TimeSlotId == timeSlotId);
+        }
+
+        public async Task<IEnumerable<Timeslot>> GetAllTimeslots()
+        {
+            return await _context.Timeslots
+                .Include(t => t.Weekdays)
+                .ToListAsync();
+        }
     }
 }

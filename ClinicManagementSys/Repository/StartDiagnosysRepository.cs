@@ -39,7 +39,7 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    var patient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.HistoryId == id);
+                    var patient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.AppointmentId == id);
                     return patient;
                 }
                 return null;
@@ -54,37 +54,56 @@ namespace ClinicManagementSys.Repository
         #region  3  - Insert an Patient -return Patient record
         public async Task<ActionResult<StartDiagnosy>> PostStartDiagnosyReturnRecord(StartDiagnosy patient)
         {
+            if (patient == null)
+            {
+                throw new ArgumentNullException(nameof(patient), "StartDiagnosy data cannot be null.");
+            }
+
             try
             {
-                //check if patient object is not null
-                if (patient == null)
-                {
-                    throw new ArgumentException(nameof(patient), "StartDiagnosy data is null");
-                }
-                //Ensure the context is not null
-                if (_context == null)
-                {
-                    throw new InvalidOperationException("Database context is not initialized");
-                }
-
-                //Add the Patient record to the DBContext
                 await _context.StartDiagnosys.AddAsync(patient);
-
-                //save changes to the database
                 await _context.SaveChangesAsync();
 
-                //Retrieve the Patient detail
-                var newpatient = await _context.StartDiagnosys.FirstOrDefaultAsync(p => p.HistoryId == patient.HistoryId);
-
-                //Return the added Patient with the record added
-                return newpatient;
+                return await _context.StartDiagnosys
+                                     .FirstOrDefaultAsync(p => p.AppointmentId == patient.AppointmentId);
             }
-
+            catch (DbUpdateException ex)
+            {
+                // Log the exception (using your preferred logging framework)
+                throw new Exception("An error occurred while updating the database.", ex);
+            }
             catch (Exception ex)
             {
-                return null;
+                // Log the exception
+                throw new Exception("An unexpected error occurred while adding StartDiagnosy.", ex);
             }
         }
+        #endregion
+        #region 3 -  Get all doctors  name from DB 
+        public async Task<List<Object>> GetDoctorNamesAsync()
+        {
+            if (_context == null)
+            {
+                throw new InvalidOperationException("Database context is null.");
+            }
+
+            // LINQ Query to Retrieve DoctorId and StaffName
+            var doctorNames = await (from doctor in _context.Doctors
+                                     join login in _context.LoginRegistrations
+                                         on doctor.RegistrationId equals login.RegistrationId
+                                     join staff in _context.Staff
+                                         on login.StaffId equals staff.StaffId
+                                     // where doctor.DoctorIsActive // Filter for active doctors
+                                     select new
+                                     {
+                                         DoctorId = doctor.DoctorId,
+                                         DoctorName = staff.StaffName
+                                     }).ToListAsync();
+
+            return doctorNames.Cast<Object>().ToList();
+        }
+
+
         #endregion
 
         #region  4  - Update/Edit an Prescription with ID

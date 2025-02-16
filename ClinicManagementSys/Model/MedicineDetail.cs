@@ -19,7 +19,7 @@ public partial class MedicineDetail
 
     public bool IsActive { get; set; }
 
-    public virtual Category Category { get; set; } = null!;
+    public virtual Category? Category { get; set; } = null!;
 
     public virtual ICollection<MedicineDistribution> MedicineDistributions { get; set; } = new List<MedicineDistribution>();
 
