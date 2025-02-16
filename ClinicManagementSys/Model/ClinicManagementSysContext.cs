@@ -615,7 +615,7 @@ public partial class ClinicManagementSysContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Appointment).WithMany(p => p.TestPrescriptions)
+            entity.HasOne(d => d.Appointments).WithMany(p => p.TestPrescriptions)
                 .HasForeignKey(d => d.AppointmentId)
                 .HasConstraintName("FK__TestPresc__Appoi__778AC167");
 

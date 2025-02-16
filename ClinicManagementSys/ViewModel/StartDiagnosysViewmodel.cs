@@ -1,12 +1,11 @@
-﻿
-using ClinicManagementSys.Model;
+﻿using ClinicManagementSys.Model;
 
 namespace ClinicManagementSys.ViewModel
 {
     public class StartDiagnosysViewmodel
     {
 
-        public int PatientId { get; set; }
+        // public int PatientId { get; set; }
 
         public string PatientName { get; set; } = null!;
 

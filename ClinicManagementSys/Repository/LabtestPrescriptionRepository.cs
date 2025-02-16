@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClinicManagementSys.Repository
 {
-    public class LabtestPrescriptionRepository: ILabtestPrescriptionRepository
+    public class LabtestPrescriptionRepository : ILabtestPrescriptionRepository
     {
 
         private readonly ClinicManagementSysContext _context;
@@ -34,13 +34,14 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region   2 - Get an Patient based on Id
-        public async Task<ActionResult<TestPrescription>> GetTestPrescriptionById(int id)
+
+        public async Task<ActionResult<LabTestReport>> GetReportDetailById(int id)
         {
             try
             {
                 if (_context != null)
                 {
-                    var patient = await _context.TestPrescriptions.FirstOrDefaultAsync(p => p.TpId == id);
+                    var patient = await _context.LabTestReports.FirstOrDefaultAsync(p => p.AppointmentId == id);
                     return patient;
                 }
                 return null;
@@ -52,36 +53,98 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
+
+        #region -----------LabtestName
+        public async Task<ActionResult<IEnumerable<Labtest>>> GetLabtestName()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.Labtests.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<Labtest>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
+
         #region  3  - Insert an Patient -return Patient record
+        //public async Task<ActionResult<TestPrescription>> PostTestPrescriptionReturnRecord(TestPrescription patient)
+        //{
+        //    try
+        //    {
+        //        //check if patient object is not null
+        //        if (patient == null)
+        //        {
+        //            throw new ArgumentException(nameof(patient), "TestPrescription data is null");
+        //        }
+        //        //Ensure the context is not null
+        //        if (_context == null)
+        //        {
+        //            throw new InvalidOperationException("Database context is not initialized");
+        //        }
+
+        //        //Add the Patient record to the DBContext
+        //        await _context.TestPrescriptions.AddAsync(patient);
+
+        //        //save changes to the database
+        //        await _context.SaveChangesAsync();
+
+        //        //Retrieve the Patient detail
+        //        var newpatient = await _context.TestPrescriptions.FirstOrDefaultAsync(p => p.AppointmentId == patient.TpId);
+
+        //        //Return the added Patient with the record added
+        //        return newpatient;
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //}
         public async Task<ActionResult<TestPrescription>> PostTestPrescriptionReturnRecord(TestPrescription patient)
         {
             try
             {
-                //check if patient object is not null
+                // Validate input
                 if (patient == null)
                 {
                     throw new ArgumentException(nameof(patient), "TestPrescription data is null");
                 }
-                //Ensure the context is not null
+
+                // Ensure the context is not null
                 if (_context == null)
                 {
                     throw new InvalidOperationException("Database context is not initialized");
                 }
 
-                //Add the Patient record to the DBContext
-                await _context.TestPrescriptions.AddAsync(patient);
+                // Create a new TestPrescription object with only the allowed fields
+                var newTestPrescription = new TestPrescription
+                {
+                    AppointmentId = patient.AppointmentId,
+                    LabTestId = patient.LabTestId,
+                    SampleItem = patient.SampleItem
+                };
 
-                //save changes to the database
+                // Add only the TestPrescription record to the DBContext
+                await _context.TestPrescriptions.AddAsync(newTestPrescription);
+
+                // Save changes to the database
                 await _context.SaveChangesAsync();
 
-                //Retrieve the Patient detail
-                var newpatient = await _context.TestPrescriptions.FirstOrDefaultAsync(p => p.AppointmentId == patient.TpId);
+                // Retrieve the added TestPrescription record
+                var addedPrescription = await _context.TestPrescriptions
+                    .FirstOrDefaultAsync(p => p.TpId == newTestPrescription.TpId);
 
-                //Return the added Patient with the record added
-                return newpatient;
+                return addedPrescription;
             }
-
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -195,6 +258,16 @@ namespace ClinicManagementSys.Repository
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
+        }
+
+        public Task<List<object>> GetLabtestNameAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ActionResult<LabTestReport>> GetTestPrescriptionById(int id)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
