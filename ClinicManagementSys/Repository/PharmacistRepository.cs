@@ -253,35 +253,35 @@ namespace ClinicManagementSys.Repository
         #region 6- Get all using ViewModel
         public async Task<ActionResult<IEnumerable<PrescriptionViewModel>>> GetViewModelPrescription()
         {
-            //LINQ
+            // LINQ
             try
             {
                 if (_context != null)
                 {
+                    var prescriptions = await (from p in _context.Prescriptions
+                                               join a in _context.Appointments on p.AppointmentId equals a.AppointmentId
+                                               join pt in _context.Patients on a.PatientId equals pt.PatientId
+                                               join d in _context.Doctors on a.DoctorId equals d.DoctorId
+                                               join lr in _context.LoginRegistrations on d.RegistrationId equals lr.RegistrationId
+                                               join s in _context.Staff on lr.StaffId equals s.StaffId
+                                               join m in _context.MedicineDetails on p.MedicineId equals m.MedicineId
+                                               where a.AppointmentDate.Date == DateTime.Today // Filter by today's date in the background
+                                               select new PrescriptionViewModel
+                                               {
+                                                   PrescriptionId = p.PrescriptionId,
+                                                   AppointmentId = p.AppointmentId,
+                                                   MedicineId = p.MedicineId,
+                                                   MedicineName = m.MedicineName,
+                                                   Dosage = p.Dosage,
+                                                   Frequency = p.Frequency,
+                                                   NumberofDays = p.NumberofDays,
+                                                   PatientName = pt.PatientName,
+                                                   StaffName = s.StaffName
+                                               }).ToListAsync();
 
-                    return await (from p in _context.Prescriptions
-                                  from a in _context.Appointments
-                                  from pt in _context.Patients
-                                  from d in _context.Doctors
-                                  from s in _context.Staff
-                                  where p.AppointmentId == a.AppointmentId
-                                        && a.PatientId == pt.PatientId
-                                        && a.DoctorId == d.DoctorId
-                                        && s.StaffId == s.StaffId
-                                  select new PrescriptionViewModel
-                                  {
-                                      PrescriptionId = p.PrescriptionId,
-                                      AppointmentId = p.AppointmentId,
-                                      MedicineId = p.MedicineId,
-                                      Dosage = p.Dosage,
-                                      Frequency = p.Frequency,
-                                      NumberofDays = p.NumberofDays,
-                                      PatientName = pt.PatientName,
-                                      StaffName = s.StaffName // Assuming Doctor has a foreign key to Staff for StaffName
-                                  }).ToListAsync();
-
+                    return prescriptions;
                 }
-                //Return an empty List if context is null
+
                 return new List<PrescriptionViewModel>();
             }
             catch (Exception ex)
@@ -292,45 +292,37 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region 7- Get all bill using ViewModel
-        public async Task<ActionResult<IEnumerable<PrescriptionBillViewModel>>> GetViewModelPrescriptionBill()
+        public async Task<PrescriptionBillViewModel?> GetBillDetailsByPrescriptionIdAsync(int prescriptionId)
         {
-            //LINQ
-            try
-            {
-                if (_context != null)
-                {
-                    return await (from pr in _context.Prescriptions
-                                  from a in _context.Appointments
-                                  from pt in _context.Patients
-                                  from md in _context.MedicineDetails
-                                  where pr.AppointmentId == a.AppointmentId
-                                        && a.PatientId == pt.PatientId
-                                        && pr.MedicineId == md.MedicineId
-                                  select new PrescriptionBillViewModel
-                                  {
-                                      PatientId = pt.PatientId,
-                                      PatientName = pt.PatientName,
-                                      BillDateTime = DateTime.Now, // Automatically set to system date and time
-                                      MedicineName = md.MedicineName,
-                                      Dosage = pr.Dosage,
-                                      Frequency = pr.Frequency,
-                                      NumberOfDays = pr.NumberofDays,
-                                      Cost = md.Cost
-                                  }).ToListAsync();
+            var billDetails = await (from prescription in _context.Prescriptions
+                                     join appointment in _context.Appointments on prescription.AppointmentId equals appointment.AppointmentId
+                                     join patient in _context.Patients on appointment.PatientId equals patient.PatientId
+                                     join medicine in _context.MedicineDetails on prescription.MedicineId equals medicine.MedicineId
+                                     where prescription.PrescriptionId == prescriptionId
+                                     select new PrescriptionBillViewModel
+                                     {
+                                         PrescriptionId = prescription.PrescriptionId,
+                                         AppointmentId = appointment.AppointmentId,
+                                         PatientId = patient.PatientId,
+                                         PatientName = patient.PatientName,
+                                         MedicineId = medicine.MedicineId,
+                                         MedicineName = medicine.MedicineName,
+                                         BillDateTime = DateTime.Now, // or fetch from a related bill table if available
+                                         Dosage = prescription.Dosage,
+                                         Frequency = prescription.Frequency,
+                                         NumberOfDays = prescription.NumberofDays,
+                                         Cost = medicine.Cost
+                                     }).FirstOrDefaultAsync();
 
-                }
-                //Return an empty List if context is null
-                return new List<PrescriptionBillViewModel>();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            return billDetails;
         }
-        #endregion
+    
 
-        #region 8- Medicine distribute viewmodel
-        public async Task<List<MedicineDistributionViewModel>> GetViewModelMedicineDitribute()
+
+#endregion
+
+#region 8- Medicine distribute viewmodel
+public async Task<List<MedicineDistributionViewModel>> GetViewModelMedicineDitribute()
         {
             //LINQ
             try
@@ -349,12 +341,13 @@ namespace ClinicManagementSys.Repository
                                       PrescriptionId = md.PrescriptionId,
                                       MedicineId = md.MedicineId,
                                       QuantityDistributed = md.QuantityDistributed,
+                                      DistributionDate = md.DistributionDate,
                                       MedStatusId = md.MedStatusId,
                                       MedicineName = mdet.MedicineName,
                                       Dosage = p.Dosage,
                                       Frequency = p.Frequency,
                                       NumberofDays = p.NumberofDays,
-                                      StockInHand = mi.StockInHand,
+                                      StockInHand = mi.StockInHand, 
                                       MedStatusName = ms.MedStatusName
                                   }).ToListAsync();
                 }
@@ -376,7 +369,7 @@ namespace ClinicManagementSys.Repository
             {
                 if (_context != null)
                 {
-                    //find th employee by id
+                    //find th Category by id
                     return await _context.Categories.ToListAsync();
                 }
                 //Return an empty List if context is null
@@ -389,5 +382,229 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
+        #region 10 - Get All Medicine prescription details by view model - Search All
+        public async Task<ActionResult<IEnumerable<MedicineDistribution>>> GetTblMedicineDistribution()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.MedicineDistributions.ToListAsync();
+                }
+                //Return an empty List if context is null
+                return new List<MedicineDistribution>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+        }
+        #endregion
+
+        #region 11 - Insert an Medicine prescription details- Return Prescription Record
+        public async Task<ActionResult<MedicineDistribution>> PostTblMedicinePrescriptionReturnRecord(MedicineDistribution medicineDistribution)
+        {
+            try
+            {
+                //check if employee object is not null
+                if (medicineDistribution == null)
+                {
+                    throw new ArgumentNullException(nameof(medicineDistribution), "medicinedistribution data is null");
+                    //return null;
+                }
+                //ensure the context is not null
+                if (_context == null)
+                {
+                    throw new InvalidOperationException("Database context is not initialized");
+                }
+
+                //Add the employee record to the DbContext
+                await _context.MedicineDistributions.AddAsync(medicineDistribution);
+
+                //save changes to the database
+                await _context.SaveChangesAsync();
+
+                return medicineDistribution;
+            }
+            catch (Exception ex)
+            {
+                //log exception here if needed
+                return null;
+            }
+        }
+        #endregion
+
+
+        #region 12- post all Medicine prescription using ViewModel
+        public async Task<bool> AddMedicineDistributionAsync(MedicineDistribution model)
+        {
+            if (_context == null || model == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                // Create a new MedicineDistribution entity from the ViewModel
+                var medicineDistribution = new MedicineDistribution
+                {
+                    MedDistId = model.MedDistId,
+                    PrescriptionId = model.PrescriptionId,
+                    MedicineId = model.MedicineId,
+                    QuantityDistributed = model.QuantityDistributed,
+                    DistributionDate = DateTime.Now, // Assuming the current date and time for distribution
+                    MedStatusId = model.MedStatusId
+                };
+
+                // Add the new entity to the context
+                await _context.MedicineDistributions.AddAsync(medicineDistribution);
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception (you can log it here)
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region 13 - 
+
+        public async Task<IEnumerable<LabAppViewModel>> GetLabTestsForTodayAsync()
+        {
+            try
+            {
+                var today = DateTime.Today;
+
+                var labTests = await (from tp in _context.TestPrescriptions
+                                      join a in _context.Appointments on tp.AppointmentId equals a.AppointmentId
+                                      join p in _context.Patients on a.PatientId equals p.PatientId
+                                      join d in _context.Doctors on a.DoctorId equals d.DoctorId
+                                      join lt in _context.Labtests on tp.LabTestId equals lt.LabTestId
+                                      join lr in _context.LoginRegistrations on d.RegistrationId equals lr.RegistrationId
+                                      join s in _context.Staff on lr.StaffId equals s.StaffId
+                                      where a.AppointmentDate == today
+                                      select new LabAppViewModel
+                                      {
+                                          LTReportId = tp.TpId,
+                                          AppointmentId = a.AppointmentId,
+                                          StaffId = s.StaffId,
+                                          StaffName = s.StaffName,
+                                          PatientId = p.PatientId,
+                                          PatientName = p.PatientName,
+                                          DoctorId = d.DoctorId,
+                                          LabTestId = lt.LabTestId,
+                                          HighRange = lt.HighRange.HasValue ? (int)lt.HighRange : 0,
+                                          LowRange = lt.LowRange.HasValue ? (int)lt.LowRange : 0,
+                                          ActualResult = 0, // Placeholder for lab test result logic
+                                          Remarks = string.Empty // Placeholder for remarks
+                                      }).ToListAsync();
+
+                return labTests;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching lab tests for today.", ex);
+            }
+        }
+        #endregion
+
+        #region 14 - Stock Management
+
+        //medicine quantity reduction
+        public async Task<ActionResult<MedicineInventory>> GetMedicineInventoryByMedicineIdAsync(int medicineId)
+        {
+            try
+            {
+                var inventory = await _context.MedicineInventories
+                    .FirstOrDefaultAsync(mi => mi.MedicineId == medicineId);
+
+                return inventory;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<bool> UpdateMedicineInventoryQuantityAsync(int medicineId, int quantityDistributed)
+        {
+            try
+            {
+                var inventory = await _context.MedicineInventories
+                    .FirstOrDefaultAsync(mi => mi.MedicineId == medicineId);
+
+                if (inventory == null || inventory.StockInHand < quantityDistributed)
+                {
+                    return false;
+                }
+
+                // Update stock and issuance
+                inventory.StockInHand -= quantityDistributed;
+                inventory.Issuance += quantityDistributed;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<ActionResult<MedicineDistribution>> DistributeMedicineWithInventoryUpdateAsync(MedicineDistribution medicineDistribution)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Validate input
+                if (medicineDistribution == null || !medicineDistribution.MedicineId.HasValue)
+                {
+                    return null;
+                }
+
+                // Check inventory
+                var inventory = await GetMedicineInventoryByMedicineIdAsync(medicineDistribution.MedicineId.Value);
+                if (inventory?.Value == null || inventory.Value.StockInHand < medicineDistribution.QuantityDistributed)
+                {
+                    return null;
+                }
+
+                // Update inventory
+                bool inventoryUpdated = await UpdateMedicineInventoryQuantityAsync(
+                    medicineDistribution.MedicineId.Value,
+                    medicineDistribution.QuantityDistributed);
+
+                if (!inventoryUpdated)
+                {
+                    return null;
+                }
+
+                // Set distribution date if not set
+                if (!medicineDistribution.DistributionDate.HasValue)
+                {
+                    medicineDistribution.DistributionDate = DateTime.Now;
+                }
+
+                // Add distribution record
+                await _context.MedicineDistributions.AddAsync(medicineDistribution);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return medicineDistribution;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return null;
+            }
+        }
+        #endregion
     }
 }

@@ -43,25 +43,26 @@ namespace ClinicManagementSys.Controllers
         }
         #endregion
 
-        #region 5 insert an doctor return doctor by id
-        [HttpPost("v1")]
-        public async Task<ActionResult<int>> insertDoctor(LoginRegistration login)
+        [HttpPost]
+        public async Task<ActionResult<LoginRegistration>> PostLoginRegistration(LoginRegistration loginRegistration)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var newdoctorId = await _repository.insertlogin(login);
-                if (newdoctorId != null)
+                if (loginRegistration == null)
                 {
-                    return Ok(newdoctorId);
+                    return BadRequest("LoginRegistration data is null");
                 }
-                else
-                {
-                    return NotFound();
-                }
+
+                var createdLoginRegistration = await _repository.AddLoginRegistration(loginRegistration);
+                return CreatedAtAction(nameof(PostLoginRegistration), new { id = createdLoginRegistration.RegistrationId }, createdLoginRegistration);
             }
-            return BadRequest();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
         }
-        #endregion
+
 
         #region update employee
         [HttpPut("{id}")]
@@ -120,5 +121,28 @@ namespace ClinicManagementSys.Controllers
             }
         }
         #endregion
+
+        [HttpGet("v2")]
+        public async Task<ActionResult<IEnumerable<Staff>>> GetAllDepartments()
+        {
+            var departments = await _repository.GetTblDepartments();
+            if (departments == null)
+            {
+                return NotFound("No Department found");
+            }
+
+            return Ok(departments);
+        }
+        [HttpGet("v5")]
+        public async Task<ActionResult<IEnumerable<Role>>> GetAllDepartmentss()
+        {
+            var departments = await _repository.Getroles();
+            if (departments == null)
+            {
+                return NotFound("No Department found");
+            }
+
+            return Ok(departments);
+        }
     }
 }

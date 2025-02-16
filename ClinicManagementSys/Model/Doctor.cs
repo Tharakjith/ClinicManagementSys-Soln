@@ -9,7 +9,7 @@ public partial class Doctor
 
     public int? SpecializationId { get; set; }
 
-    public decimal? ConsultationFee { get; set; }
+    public decimal ConsultationFee { get; set; }
 
     public int? RegistrationId { get; set; }
 

@@ -15,7 +15,7 @@ namespace ClinicManagementSys.Repository
         #endregion
 
         #region 3- insert all records
-        public Task<ActionResult<int>> insertlogin(LoginRegistration login);
+        public Task<LoginRegistration> AddLoginRegistration(LoginRegistration loginRegistration);
         #endregion 
 
         #region  4-update login by its id
@@ -24,6 +24,7 @@ namespace ClinicManagementSys.Repository
         #region 7-delete login
         public JsonResult Deletelogin(int id);
         #endregion
-
+        public Task<ActionResult<IEnumerable<Staff>>> GetTblDepartments();
+        public Task<ActionResult<IEnumerable<Role>>> Getroles();
     }
 }

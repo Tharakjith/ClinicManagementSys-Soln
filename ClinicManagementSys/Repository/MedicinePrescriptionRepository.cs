@@ -33,7 +33,30 @@ namespace ClinicManagementSys.Repository
         }
         #endregion
 
+        #region----------------name
+
+        public async Task<ActionResult<IEnumerable<MedicineDetail>>> GetMedicineName()
+        {
+            try
+            {
+                if (_context != null)
+                {
+                    return await _context.MedicineDetails.ToListAsync();
+                }
+
+                //return an empty list if context is null
+                return new List<MedicineDetail>();
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        #endregion
+
+
         #region   2 - Get an Patient based on Id
+
         public async Task<ActionResult<Prescription>> GetMedicineDetailById(int id)
         {
             try
@@ -51,6 +74,28 @@ namespace ClinicManagementSys.Repository
             }
         }
         #endregion
+
+        /*   public async Task<List<object>> GetMedicineNamesAsync()
+       {
+           if (_context == null)
+           {
+               throw new InvalidOperationException("Database context is null.");
+           }
+
+           // LINQ Query to Retrieve MedicineId and MedicineName
+           var medicineNames = await (from medicine in _context.MedicineDetails
+                                      where medicine.IsActive // Filter for active medicines
+                                      select new
+                                      {
+                                          MedicineId = medicine.MedicineId,
+                                          MedicineName = medicine.MedicineName
+                                      }).ToListAsync();
+
+           // Cast the result to List<object> and return
+           return medicineNames.Cast<object>().ToList();
+       }
+
+       * */
 
         #region  3  - Insert an Patient -return Patient record
         public async Task<ActionResult<Prescription>> PostMedicineDetailReturnRecord(Prescription patient)
@@ -113,7 +158,7 @@ namespace ClinicManagementSys.Repository
 
                 //Retreive the patient 
                 var updateMedicineDetail = await _context.Prescriptions
-                  //  .FirstOrDefaultAsync(existingMedicineDetail => existingMedicineDetail.PrescriptionId == Prescription.PrescriptionId);
+                 //  .FirstOrDefaultAsync(existingMedicineDetail => existingMedicineDetail.PrescriptionId == Prescription.PrescriptionId);
                  .FirstOrDefaultAsync(existingPatient => existingMedicineDetail.PrescriptionId == patient.PrescriptionId);
 
                 //Return the added Patient record

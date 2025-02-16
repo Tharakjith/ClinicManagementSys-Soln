@@ -19,9 +19,9 @@ public partial class LabTestReport
 
     public string? Remarks { get; set; }
 
-    public virtual Appointment Appointment { get; set; } = null!;
+    public virtual Appointment? Appointment { get; set; } = null!;
 
-    public virtual Labtest LabTest { get; set; } = null!;
+    public virtual Labtest? LabTest { get; set; } = null!;
 
     public virtual ICollection<LabTestBill> LabTestBills { get; set; } = new List<LabTestBill>();
 }

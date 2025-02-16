@@ -42,8 +42,8 @@ namespace ClinicManagementSys.Repository
 
             return appointments;
         }
-    } 
+    }
 
 
-    
+
 }
