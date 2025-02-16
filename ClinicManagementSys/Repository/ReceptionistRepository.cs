@@ -546,14 +546,12 @@ namespace ClinicManagementSys.Repository
                 if (availability.TimeSlot.Weekdays == null)
                     throw new InvalidOperationException("Weekdays information not found for the selected timeslot");
 
-
                 // Check for existing appointments
                 var existingAppointments = await _context.Appointments
                     .Where(a => a.DoctorId == appointment.DoctorId
                         && a.AppointmentDate.Date == appointment.AppointmentDate.Date
                         && a.AvailabilityId == appointment.AvailabilityId)
                     .ToListAsync();
-
 
                 if (existingAppointments.Count >= 15)
                     throw new InvalidOperationException("Maximum appointments reached for this time slot");

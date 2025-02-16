@@ -1,4 +1,4 @@
-namespace ClinicManagementSys.ViewModel
+﻿namespace ClinicManagementSys.ViewModel
 {
     public class LabTestReportViewModel
     {
